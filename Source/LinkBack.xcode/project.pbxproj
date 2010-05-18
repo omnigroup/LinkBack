@@ -114,6 +114,7 @@
 			children = (
 				8DC2EF5A0486A6940098B216,
 				089C1666FE841158C02AAC07,
+				20E80E6307F2116B0060ED13,
 			);
 			isa = PBXGroup;
 			name = Resources;
@@ -258,6 +259,31 @@
 			settings = {
 			};
 		};
+		20E80E6307F2116B0060ED13 = {
+			children = (
+				20E80E6407F2116B0060ED13,
+			);
+			isa = PBXVariantGroup;
+			name = Localized.strings;
+			path = "";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		20E80E6407F2116B0060ED13 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
+			name = English;
+			path = English.lproj/Localized.strings;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		20E80E6507F2116B0060ED13 = {
+			fileRef = 20E80E6307F2116B0060ED13;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 //200
 //201
 //202
@@ -340,6 +366,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DC2EF530486A6940098B216,
+				20E80E6507F2116B0060ED13,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;

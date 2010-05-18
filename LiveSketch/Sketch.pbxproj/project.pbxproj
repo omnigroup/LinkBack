@@ -853,6 +853,10 @@
 	<string>lskt</string>
 	<key>CFBundleVersion</key>
 	<string>alpha.01</string>
+	<key>LinkBackApplicationURL</key>
+	<string>http://www.linkbackproject.org</string>
+	<key>LinkBackVersion</key>
+	<string>A</string>
 	<key>NSAppleScriptEnabled</key>
 	<string>YES</string>
 	<key>NSMainNibFile</key>

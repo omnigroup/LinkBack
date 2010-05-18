@@ -78,7 +78,7 @@ typedef struct _DocumentSaveInfo {
     IBOutlet NSView *richTextDocumentFormatAccessory;		/* Set when the rich text popup is loaded */
     IBOutlet NSPopUpButton *richTextDocumentFormatPopUp;	/* Set when the rich text popup is loaded */
     
-    // LIVELINK SUPPORT
+    // LINKBACK SUPPORT
     NSMutableArray* activeLinks ; // currently active live links.
 }
 
@@ -217,6 +217,11 @@ typedef struct _DocumentSaveInfo {
 
 // LIVELINK EDITS
 @interface Document (LinkBackSupport) <LinkBackClientDelegate>
+
+- (NSArray*)selectedLinkBackTextAttachments ;
+- (IBAction)editLinkBackItems:(id)sender ;
+- (BOOL)editLinkBackInTextAttachment:(id)attachment ;
+
 @end
 
 @interface Document (ReadWrite)

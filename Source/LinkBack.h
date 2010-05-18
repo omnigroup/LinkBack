@@ -39,22 +39,51 @@
 // Use this pasteboard type to put LinkBack data to the pasteboard.  Use MakeLinkBackData() to create the data.
 extern NSString* LinkBackPboardType ;
 
-// LinkBack data keys.  These are used in a LiveLInk object, which is currently a dictionary.  Do not depend on these values.  They are public for testing purposes only.
-extern NSString* LinkBackServerNameKey ;
-extern NSString* LinkBackServerBundleIdentifierKey ;
-extern NSString* LinkBackVersionKey ;
-extern NSString* LinkBackApplicationDataKey ;
+// Default Action Names.  These will be localized for you automatically.
+extern NSString* LinkBackEditActionName ;
+extern NSString* LinkBackRefreshActionName ;
 
 //
 // Support Functions
 //
+NSString* LinkBackUniqueItemKey() ;
+NSString* LinkBackEditMultipleMenuTitle() ;
+NSString* LinkBackEditNoneMenuTitle() ;
 
+// 
+// Deprecated Support Functions -- use LinkBack Data Category instead
+//
 id MakeLinkBackData(NSString* serverName, id appData) ;
 id LinkBackGetAppData(id linkBackData) ;
-
 BOOL LinkBackDataBelongsToActiveApplication(id data) ;
 
-NSString* LinkBackUniqueItemKey() ;
+//
+// LinkBack Data Category
+//
+
+// Use these methods to create and access linkback data objects.  You can also use the helper functions above.
+
+@interface NSDictionary (LinkBackData)
+
++ (NSDictionary*)linkBackDataWithServerName:(NSString*)serverName appData:(id)appData ;
+
++ (NSDictionary*)linkBackDataWithServerName:(NSString*)serverName appData:(id)appData suggestedRefreshRate:(NSTimeInterval)rate ;
+
++ (NSDictionary*)linkBackDataWithServerName:(NSString*)serverName appData:(id)appData actionName:(NSString*)action suggestedRefreshRate:(NSTimeInterval)rate ;
+
+- (BOOL)linkBackDataBelongsToActiveApplication ;
+
+- (id)linkBackAppData ;
+- (NSString*)linkBackSourceApplicationName ;
+- (NSString*)linkBackActionName ;
+- (NSString*)linkBackVersion ;
+- (NSURL*)linkBackApplicationURL ;
+
+- (NSTimeInterval)linkBackSuggestedRefreshRate ;
+
+- (NSString*)linkBackEditMenuTitle ;
+
+@end
 
 //
 // Delegate Protocols

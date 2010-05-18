@@ -39,10 +39,17 @@
 NSString* LinkBackPboardType = @"LinkBackData" ;
 
 // LinkBack data keys.  These are used in a LinkBack object, which is currently a dictionary.  Do not depend on these values.  They are public for testing purposes only.
+NSString* LinkBackServerActionKey = @"serverActionKey" ;
+NSString* LinkBackServerApplicationNameKey = @"serverAppName" ;
 NSString* LinkBackServerNameKey = @"serverName" ;
 NSString* LinkBackServerBundleIdentifierKey = @"bundleId" ;
 NSString* LinkBackVersionKey = @"version" ;
 NSString* LinkBackApplicationDataKey = @"appData" ;
+NSString* LinkBackSuggestedRefreshKey = @"refresh" ;
+NSString* LinkBackApplicationURLKey = @"ApplicationURL" ;
+
+NSString* LinkBackEditActionName = @"_Edit" ;
+NSString* LinkBackRefreshActionName = @"_Refresh" ;
 
 // ...........................................................................
 // Support Functions
@@ -50,20 +57,12 @@ NSString* LinkBackApplicationDataKey = @"appData" ;
 
 id MakeLinkBackData(NSString* serverName, id appData) 
 {
-    NSMutableDictionary* ret = [[NSMutableDictionary alloc] init] ;
-    NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier] ;
-    id version = @"A" ;
-    
-    [ret setObject: bundleId forKey: LinkBackServerBundleIdentifierKey]; 
-    [ret setObject: serverName forKey: LinkBackServerNameKey] ;
-    [ret setObject: version forKey: LinkBackVersionKey] ;
-    [ret setObject: appData forKey: LinkBackApplicationDataKey] ;
-    return [ret autorelease] ;
+	return [NSDictionary linkBackDataWithServerName: serverName appData: appData] ;
 }
 
 id LinkBackGetAppData(id LinkBackData) 
 {
-    return [LinkBackData objectForKey: LinkBackApplicationDataKey] ;
+	return [LinkBackData linkBackAppData] ;
 }
 
 NSString* LinkBackUniqueItemKey() 
@@ -77,10 +76,124 @@ NSString* LinkBackUniqueItemKey()
 
 BOOL LinkBackDataBelongsToActiveApplication(id data) 
 {
+	return [data linkBackDataBelongsToActiveApplication] ;
+}
+
+NSString* LinkBackEditMultipleMenuTitle() 
+{
+	NSBundle* bundle = [NSBundle bundleForClass: [LinkBack class]] ;
+	NSString* ret = [bundle localizedStringForKey: @"_EditMultiple" value: @"Edit LinkBack Items" table: @"Localized"] ;
+	return ret ;
+}
+
+NSString* LinkBackEditNoneMenuTitle() 
+{
+	NSBundle* bundle = [NSBundle bundleForClass: [LinkBack class]] ;
+	NSString* ret = [bundle localizedStringForKey: @"_EditNone" value: @"Edit LinkBack Item" table: @"Localized"] ;
+	return ret ;
+}
+
+// ...........................................................................
+// LinkBack Data Category
+//
+
+// Use these methods to create and access linkback data objects.  You can also use the helper functions above.
+
+@implementation NSDictionary (LinkBackData)
+
++ (NSDictionary*)linkBackDataWithServerName:(NSString*)serverName appData:(id)appData 
+{
+	return [self linkBackDataWithServerName: serverName appData: appData actionName: nil suggestedRefreshRate: 0];
+}
+
++ (NSDictionary*)linkBackDataWithServerName:(NSString*)serverName appData:(id)appData suggestedRefreshRate:(NSTimeInterval)rate 
+{
+	return [self linkBackDataWithServerName: serverName appData: appData actionName: LinkBackRefreshActionName suggestedRefreshRate: rate] ;
+}
+
++ (NSDictionary*)linkBackDataWithServerName:(NSString*)serverName appData:(id)appData actionName:(NSString*)action suggestedRefreshRate:(NSTimeInterval)rate ;
+{
+	NSDictionary* appInfo = [[NSBundle mainBundle] infoDictionary] ;
+
+    NSMutableDictionary* ret = [[NSMutableDictionary alloc] init] ;
     NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier] ;
-    NSString* dataId = ([data isKindOfClass: [NSDictionary class]]) ? [data objectForKey: LinkBackServerBundleIdentifierKey] : nil ;
+	NSString* url = [appInfo objectForKey: @"LinkBackApplicationURL"] ;
+	NSString* appName = [[[NSWorkspace sharedWorkspace] activeApplication] objectForKey: @"NSApplicationName"] ;
+    id version = @"A" ;
+
+	if (nil==serverName) [NSException raise: NSInvalidArgumentException format: @"LinkBack Data cannot be created without a server name."] ;
+	
+	// callback information
+	[ret setObject: bundleId forKey: LinkBackServerBundleIdentifierKey]; 
+    [ret setObject: serverName forKey: LinkBackServerNameKey] ;
+    [ret setObject: version forKey: LinkBackVersionKey] ;
+	
+	// additional information
+	if (appName) [ret setObject: appName forKey: LinkBackServerApplicationNameKey] ;
+	if (action) [ret setObject: action forKey: LinkBackServerActionKey] ;
+    if (appData) [ret setObject: appData forKey: LinkBackApplicationDataKey] ;
+	if (url) [ret setObject: url forKey: LinkBackApplicationURLKey] ;
+	[ret setObject: [NSNumber numberWithFloat: rate] forKey: LinkBackSuggestedRefreshKey] ;
+	
+    return [ret autorelease] ;
+}
+
+- (BOOL)linkBackDataBelongsToActiveApplication 
+{
+    NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier] ;
+    NSString* dataId = [self objectForKey: LinkBackServerBundleIdentifierKey] ;
     return (dataId && [dataId isEqualToString: bundleId]) ;
 }
+
+- (id)linkBackAppData 
+{
+	return [self objectForKey: LinkBackApplicationDataKey] ;
+}
+
+- (NSString*)linkBackSourceApplicationName 
+{
+	return [self objectForKey: LinkBackServerApplicationNameKey] ;
+}
+
+- (NSString*)linkBackActionName 
+{
+	NSBundle* bundle = [NSBundle bundleForClass: [LinkBack class]] ;
+	NSString* ret = [self objectForKey: LinkBackServerActionKey] ;
+	if (nil==ret) ret = LinkBackEditActionName ;
+	
+	ret = [bundle localizedStringForKey: ret value: ret table: @"Localized"] ;
+	return ret ;
+}
+
+- (NSString*)linkBackEditMenuTitle
+{
+	NSBundle* bundle = [NSBundle bundleForClass: [LinkBack class]] ;
+	NSString* appName = [self linkBackSourceApplicationName] ;
+	NSString* action = [self linkBackActionName] ;
+	NSString* ret = [bundle localizedStringForKey: @"_EditPattern" value: @"%@ in %@" table: @"Localized"] ;
+	ret = [NSString stringWithFormat: ret, action, appName] ;
+	return ret ;
+}
+
+- (NSString*)linkBackVersion 
+{
+	return [self objectForKey: LinkBackVersionKey] ;
+}
+
+- (NSTimeInterval)linkBackSuggestedRefreshRate 
+{
+	id obj = [self objectForKey: LinkBackSuggestedRefreshKey] ;
+	return (obj) ? [obj floatValue] : 0 ;
+}
+
+- (NSURL*)linkBackApplicationURL 
+{
+	id obj = [self objectForKey: LinkBackApplicationURLKey] ;
+	if (obj) obj = [NSURL URLWithString: obj] ;
+	return obj ;
+}
+
+@end
 
 // ...........................................................................
 // LinkBackServer 

@@ -13,6 +13,7 @@
                 close = id; 
                 complete = id; 
                 doPageLayout = id; 
+                editLinkBackItems = id; 
                 outline = id; 
                 pasteAsPlainText = id; 
                 performFindPanelAction = id; 

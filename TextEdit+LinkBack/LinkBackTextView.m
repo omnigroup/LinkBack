@@ -61,6 +61,5 @@
         return YES ;
     } else return [super readSelectionFromPasteboard: pboard] ;
     
-}
-
+} 
 @end

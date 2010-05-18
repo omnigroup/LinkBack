@@ -68,14 +68,56 @@ static NSZone *zoneForNewDocument(void) {
 
 @implementation Document (LinkBackSupport)
 
-- (void)textView:(NSTextView *)aTextView doubleClickedOnCell:(id <NSTextAttachmentCell>)cell inRect:(NSRect)cellFrame atIndex:(unsigned)charIndex
+- (NSArray*)selectedLinkBackTextAttachments 
 {
-    LinkBackTextAttachment* attachment = (LinkBackTextAttachment*)[cell attachment] ;
+	NSMutableArray* ret = [[NSMutableArray alloc] init] ;
+
+	// get the current selected range
+	NSTextStorage* ts = [self textStorage] ;
+	NSRange range = [[[self layoutManager] firstTextView] selectedRange] ;
+	NSRange erange ;
+	unsigned maxloc = NSMaxRange(range) ;
+	
+	NSTextAttachment* attachment ;
+
+	// expand the selected range if it is 0 length to get the attachment following.
+	if ((0==range.length) && (range.location < [ts length])) range.length = 1 ;
+	
+	// add any linkback text attachments to return list
+	while(range.length > 0) {
+		attachment = [ts attribute: NSAttachmentAttributeName atIndex: range.location effectiveRange: &erange] ;
+	
+		if (attachment && [attachment isKindOfClass: [LinkBackTextAttachment class]]) {
+			[ret addObject: attachment] ;
+		}
+		
+		// update range
+		range.location = NSMaxRange(erange) ;
+		range.length = (range.location < maxloc) ? maxloc - range.location : 0 ;
+	}
+	
+	return [ret autorelease] ;
+}
+
+- (void)editLinkBackItems:(id)sender
+{
+	NSLog(@"edit linkback items") ;
+	NSArray* attachments = [self selectedLinkBackTextAttachments] ;
+	int idx = [attachments count] ;
+	while(--idx >= 0) {
+		LinkBackTextAttachment* attachment = [attachments objectAtIndex: idx];
+		[self editLinkBackInTextAttachment: attachment] ;
+	}
+}
+
+- (BOOL)editLinkBackInTextAttachment:(id)attachment
+{
+	BOOL ret = NO ;
     id linkBackData ;
     
     // get the live link data and start a live link if it is found.
     if ([attachment isKindOfClass: [LinkBackTextAttachment class]] && (linkBackData=[attachment linkBackData])) {
-
+		
         // start the edit.  If an object is returned, the edit succeeded.
         NSString* srcName = [[self window] title] ;
         NSString* itemKey = [attachment linkBackItemKey] ;
@@ -85,7 +127,11 @@ static NSZone *zoneForNewDocument(void) {
             [lnk setRepresentedObject: attachment] ;
             [activeLinks addObject: lnk] ;
         }
-    } else NSBeep() ;
+		
+		ret = YES ;
+    }
+	
+	return ret ;
 }
 
 - (void)linkBackDidClose:(LinkBack*)aLink
@@ -1560,11 +1606,21 @@ NSString *chooseableRichTextDocumentFormatNames[NumChooseableRichTextDocumentFor
 
 - (void)textView:(NSTextView *)view doubleClickedOnCell:(id <NSTextAttachmentCell>)cell inRect:(NSRect)rect {
     BOOL success = NO;
-    NSString *name = [[[cell attachment] fileWrapper] filename];
-    if (name && documentName && ![name isEqualToString:@""] && ![documentName isEqualToString:@""]) {
-	NSString *fullPath = [documentName stringByAppendingPathComponent:name];
-        success = [[NSWorkspace sharedWorkspace] openFile:fullPath];
-    }
+	
+	// first try to handle linkback attachments
+	success = [self editLinkBackInTextAttachment: [cell attachment]] ;
+	
+	// next try to handle regular file attachments
+	if (!success) {
+		NSString* fullPath ;
+		NSString *name = [[[cell attachment] fileWrapper] filename];
+    
+		if (name && documentName && ![name isEqualToString:@""] && ![documentName isEqualToString:@""]) {
+				fullPath = [documentName stringByAppendingPathComponent:name];
+				success = [[NSWorkspace sharedWorkspace] openFile:fullPath];
+		}
+	}
+	
     if (!success) {
         NSBeep();
     }
@@ -1765,7 +1821,29 @@ static void validateToggleItem(NSMenuItem *aCell, BOOL useFirst, NSString *first
 */
 - (BOOL)validateMenuItem:(NSMenuItem *)aCell {
     SEL action = [aCell action];
-    if (action == @selector(toggleRich:)) {
+	
+	// LINKBACK CODE
+	if (action == @selector(editLinkBackItems:)) {
+		BOOL ret ;
+		NSString* title ;
+		NSArray* attachments = [self selectedLinkBackTextAttachments] ;
+		
+		// get the proper menu item name and return value
+		if ([attachments count] == 1) {
+			title = [[[attachments objectAtIndex: 0] linkBackData] linkBackEditMenuTitle] ;
+			ret = YES ;
+		} else if ([attachments count]>1) {
+			title = LinkBackEditMultipleMenuTitle() ;
+			ret = YES ;
+		} else {
+			title = LinkBackEditNoneMenuTitle() ;
+			ret = NO ;
+		}
+		
+		[aCell setTitle: title] ;
+		return ret ;
+		
+	} else if (action == @selector(toggleRich:)) {
 	validateToggleItem(aCell, [self isRichText], NSLocalizedString(@"&Make Plain Text", @"Menu item to make the current document plain text"), NSLocalizedString(@"&Make Rich Text", @"Menu item to make the current document rich text"));
         if (![[self firstTextView] isEditable] || [self hasSheet]) return NO;
     } else if (action == @selector(toggleReadOnly:)) {

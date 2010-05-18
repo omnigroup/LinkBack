@@ -259,7 +259,7 @@
 				20D867A0067FC607001F0052,
 			);
 			isa = PBXGroup;
-			name = LiveLink;
+			name = LinkBack;
 			refType = 4;
 			sourceTree = "<group>";
 		};
@@ -923,6 +923,10 @@
 	<string>lted</string>
 	<key>CFBundleVersion</key>
 	<string>alpha.01</string>
+	<key>LinkBackApplicationURL</key>
+	<string>http://www.linkbackproject.org</string>
+	<key>LinkBackVersion</key>
+	<string>A</string>
 	<key>NSAppleScriptEnabled</key>
 	<string>YES</string>
 	<key>NSHumanReadableCopyright</key>
