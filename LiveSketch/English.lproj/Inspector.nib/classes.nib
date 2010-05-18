@@ -1,0 +1,34 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {
+                dimensionTextFieldAction = id; 
+                fillCheckboxAction = id; 
+                fillColorWellAction = id; 
+                lineCheckboxAction = id; 
+                lineColorWellAction = id; 
+                lineWidthSliderAction = id; 
+                lineWidthTextFieldAction = id; 
+            }; 
+            CLASS = SKTInspectorController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                fillCheckbox = id; 
+                fillColorWell = id; 
+                heightTextField = id; 
+                lineCheckbox = id; 
+                lineColorWell = id; 
+                lineWidthSlider = id; 
+                lineWidthTextField = id; 
+                needsUpdate = id; 
+                widthTextField = id; 
+                xTextField = id; 
+                yTextField = id; 
+            }; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {CLASS = java.lang.Object; LANGUAGE = Java; }
+    ); 
+    IBVersion = 1; 
+}

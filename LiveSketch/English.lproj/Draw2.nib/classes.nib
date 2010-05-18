@@ -1,0 +1,69 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                alignBottomEdges = id; 
+                alignHorizontalCenters = id; 
+                alignLeftEdges = id; 
+                alignRightEdges = id; 
+                alignTopEdges = id; 
+                alignVerticalCenters = id; 
+                bringToFront = id; 
+                deselectAll = id; 
+                gridSelectedGraphicsAction = id; 
+                makeNaturalSize = id; 
+                makeSameHeight = id; 
+                makeSameWidth = id; 
+                performZoom = id; 
+                sendToBack = id; 
+                showsGridMenuAction = id; 
+                snapsToGridMenuAction = id; 
+            }; 
+            CLASS = FirstResponder; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {orderFrontStandardAboutPanel = id; }; 
+            CLASS = NSApplication; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSResponder; 
+        }, 
+        {
+            ACTIONS = {
+                selectArrowToolAction = id; 
+                showGridPanelAction = id; 
+                showInspectorPanelAction = id; 
+                showPreferencesPanelAction = id; 
+                showToolPaletteAction = id; 
+            }; 
+            CLASS = SKTDrawAppDelegate; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {
+                gridColorWellAction = id; 
+                gridSpacingSliderAction = id; 
+                showsGridCheckboxAction = id; 
+                snapsToGridCheckboxAction = id; 
+            }; 
+            CLASS = SKTGridPanelController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                gridColor = id; 
+                gridColorWell = id; 
+                gridSpacing = id; 
+                gridSpacingSlider = id; 
+                gridView = id; 
+                showsGrid = id; 
+                showsGridCheckbox = id; 
+                snapsToGrid = id; 
+                snapsToGridCheckbox = id; 
+            }; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {CLASS = "java.lang.Object"; LANGUAGE = Java; }
+    ); 
+    IBVersion = 1; 
+}

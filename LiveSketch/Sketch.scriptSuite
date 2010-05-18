@@ -1,0 +1,120 @@
+// Sketch.scriptSuite
+// Sketch Example
+//
+
+{
+    "Name" = "Sketch";
+    "AppleEventCode" = "sktc";
+    
+    "Classes" = {
+        "NSApplication" = {
+            "Superclass" = "NSCoreSuite.NSApplication";
+            "ToManyRelationships" = {
+                "orderedDocuments" = {
+                    "Type" = "SKTDrawDocument";
+                    "AppleEventCode" = "docu";
+                };
+            };
+            "AppleEventCode" = "capp";
+        };
+        "SKTGraphic" = {
+            "Superclass" = "NSCoreSuite.AbstractObject";
+            "AppleEventCode" = "grph";
+            "Attributes" = {
+                "xPosition" = {
+                    "Type" = "NSNumber";
+                    "AppleEventCode" = "xpos";
+                };
+                "yPosition" = {
+                    "Type" = "NSNumber";
+                    "AppleEventCode" = "ypos";
+                };
+                "width" = {
+                    "Type" = "NSNumber";
+                    "AppleEventCode" = "widt";
+                };
+                "height" = {
+                    "Type" = "NSNumber";
+                    "AppleEventCode" = "heig";
+                };
+                "strokeColor" = {
+                    "Type" = "NSColor";
+                    "AppleEventCode" = "sclr";
+                };
+                "fillColor" = {
+                    "Type" = "NSColor";
+                    "AppleEventCode" = "fclr";
+                };
+		"strokeLineWidth" = {
+                    "Type" = "NSNumber";
+                    "AppleEventCode" = "slwd";
+		};
+            };
+	};
+        "SKTRectangle" = {
+            "Superclass" = "SKTGraphic";
+            "AppleEventCode" = "d2rc";
+	};
+        "SKTCircle" = {
+            "Superclass" = "SKTGraphic";
+            "AppleEventCode" = "d2cr";
+	};
+        "SKTLine" = {
+            "Superclass" = "SKTGraphic";
+            "AppleEventCode" = "d2ln";
+	};
+        "SKTTextArea" = {
+            "Superclass" = "SKTGraphic";
+            "AppleEventCode" = "d2ta";
+            "ToOneRelationships" = {
+                "contents" = {
+                    "Type" = "NSTextStorage";
+                    "AppleEventCode" = "tact";
+                };
+            };
+	};
+        "SKTImage" = {
+            "Superclass" = "SKTGraphic";
+            "AppleEventCode" = "d2im";
+            "Attributes" = {
+                "imageFile" = {
+                    "Type" = "NSString";
+                    "AppleEventCode" = "imgf";
+                };
+            };
+	};
+        "SKTDrawDocument" = {
+            "Superclass" = "NSCoreSuite.NSDocument";
+            "AppleEventCode" = "docu";
+            "ToManyRelationships" = {
+                "graphics" = {
+                    "Type" = "SKTGraphic";
+                    "AppleEventCode" = "grph";
+                };
+                "rectangles" = {
+                    "Type" = "SKTRectangle";
+                    "AppleEventCode" = "d2rc";
+                };
+                "circles" = {
+                    "Type" = "SKTCircle";
+                    "AppleEventCode" = "d2cr";
+                };
+                "lines" = {
+                    "Type" = "SKTLine";
+                    "AppleEventCode" = "d2ln";
+                };
+                "textAreas" = {
+                    "Type" = "SKTTextArea";
+                    "AppleEventCode" = "d2ta";
+                };
+                "images" = {
+                    "Type" = "SKTImage";
+                    "AppleEventCode" = "d2im";
+                };
+            };
+	};
+    };
+    "Synonyms" = {
+        "tact" = "NSTextSuite.NSTextStorage";
+    };
+}

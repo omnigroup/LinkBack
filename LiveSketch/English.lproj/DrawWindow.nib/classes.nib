@@ -1,0 +1,13 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            CLASS = SKTDrawWindowController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {graphicView = id; }; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {CLASS = SKTGraphicView; LANGUAGE = ObjC; SUPERCLASS = NSView; }
+    ); 
+    IBVersion = 1; 
+}

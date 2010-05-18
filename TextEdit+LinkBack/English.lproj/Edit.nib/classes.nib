@@ -1,0 +1,104 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {createNew = id; open = id; saveAll = id; showInfoPanel = id; }; 
+            CLASS = Controller; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {
+                alignJustified = id; 
+                centerSelectionInVisibleArea = id; 
+                close = id; 
+                complete = id; 
+                doPageLayout = id; 
+                outline = id; 
+                pasteAsPlainText = id; 
+                performFindPanelAction = id; 
+                printDocument = id; 
+                redo = id; 
+                revert = id; 
+                save = id; 
+                saveAs = id; 
+                saveTo = id; 
+                startSpeaking = id; 
+                stopSpeaking = id; 
+                toggleBaseWritingDirection = id; 
+                toggleContinuousSpellChecking = id; 
+                toggleHyphenation = id; 
+                togglePageBreaks = id; 
+                toggleReadOnly = id; 
+                toggleRich = id; 
+                toggleTraditionalCharacterShape = id; 
+                undo = id; 
+            }; 
+            CLASS = FirstResponder; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {hideOtherApplications = id; unhideOtherApplications = id; }; 
+            CLASS = NSApplication; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSResponder; 
+        }, 
+        {
+            ACTIONS = {orderFrontStylesPanel = id; }; 
+            CLASS = NSFontManager; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {
+                changePlainTextFont = id; 
+                changeRichTextFont = id; 
+                miscChanged = id; 
+                ok = id; 
+                revert = id; 
+                revertToDefault = id; 
+                showPanel = id; 
+            }; 
+            CLASS = Preferences; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                deleteBackupMatrix = id; 
+                plainTextEncodingPopup = id; 
+                plainTextFontNameField = id; 
+                richTextFontNameField = id; 
+                richTextMatrix = id; 
+                saveFilesWritableButton = id; 
+                showPageBreaksButton = id; 
+                tabWidthField = id; 
+                windowHeightField = id; 
+                windowWidthField = id; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {
+                findNext = id; 
+                findNextAndOrderFindPanelOut = id; 
+                findPrevious = id; 
+                jumpToSelection = id; 
+                orderFrontFindPanel = id; 
+                replace = id; 
+                replaceAll = id; 
+                replaceAndFind = id; 
+                takeFindStringFromSelection = id; 
+            }; 
+            CLASS = TextFinder; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                findNextButton = id; 
+                findTextField = id; 
+                ignoreCaseButton = id; 
+                replaceAllScopeMatrix = id; 
+                replaceTextField = id; 
+                statusField = id; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

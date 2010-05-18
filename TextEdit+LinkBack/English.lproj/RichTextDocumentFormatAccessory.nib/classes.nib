@@ -1,0 +1,13 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {richTextDocumentFormatChanged = id; }; 
+            CLASS = Document; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {richTextDocumentFormatAccessory = id; richTextDocumentFormatPopUp = id; }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+    ); 
+    IBVersion = 1; 
+}
