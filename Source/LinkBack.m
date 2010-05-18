@@ -70,8 +70,8 @@ NSString* LinkBackUniqueItemKey()
     static int counter = 0 ;
     
     NSString* base = [[NSBundle mainBundle] bundleIdentifier] ;
-    unsigned long time = [NSDate timeIntervalSinceReferenceDate] ;
-    return [NSString stringWithFormat: @"%@%.8x.%.4x",base,time,counter++] ;
+    uint64_t secondsSinceReferenceDate = [NSDate timeIntervalSinceReferenceDate];
+    return [NSString stringWithFormat: @"%@%qu.%.4x", base, secondsSinceReferenceDate, counter++] ;
 }
 
 BOOL LinkBackDataBelongsToActiveApplication(id data) 
@@ -133,7 +133,7 @@ NSString* LinkBackEditNoneMenuTitle()
 	if (action) [ret setObject: action forKey: LinkBackServerActionKey] ;
     if (appData) [ret setObject: appData forKey: LinkBackApplicationDataKey] ;
 	if (url) [ret setObject: url forKey: LinkBackApplicationURLKey] ;
-	[ret setObject: [NSNumber numberWithFloat: rate] forKey: LinkBackSuggestedRefreshKey] ;
+	[ret setObject: [NSNumber numberWithDouble: rate] forKey: LinkBackSuggestedRefreshKey] ;
 	
     return [ret autorelease] ;
 }
@@ -223,35 +223,43 @@ NSMutableDictionary* keyedLinkBacks = nil ;
 
 - (id)initServerWithClient: (LinkBack*)aLinkBack delegate: (id<LinkBackServerDelegate>)aDel 
 {
-    if (self = [super init]) {
-        peer = [aLinkBack retain] ;
-        sourceName = [[peer sourceName] copy] ;
-		sourceApplicationName = [[peer sourceApplicationName] copy] ;
-        key = [[peer itemKey] copy] ;
-        isServer = YES ;
-        delegate = aDel ;
-        [keyedLinkBacks setObject: self forKey: key] ;
-    }
+    if (![super init])
+        return nil;
+
+    peer = [aLinkBack retain] ;
+    sourceName = [[peer sourceName] copy] ;
+            sourceApplicationName = [[peer sourceApplicationName] copy] ;
+    key = [[peer itemKey] copy] ;
+    isServer = YES ;
+    delegate = aDel ;
+    [keyedLinkBacks setObject: self forKey: key] ;
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(connectionDidDie:)
+                                                 name:NSConnectionDidDieNotification
+                                               object:[(NSDistantObject *)peer connectionForProxy]];
     return self ;
 }
 
 - (id)initClientWithSourceName:(NSString*)aName delegate:(id<LinkBackClientDelegate>)aDel itemKey:(NSString*)aKey ;
 {
-    if (self = [super init]) {
-        isServer = NO ;
-        delegate = aDel ;
-        sourceName = [aName copy] ;
-		sourceApplicationName = [[NSProcessInfo processInfo] processName] ;
-        pboard = [[NSPasteboard pasteboardWithUniqueName] retain] ;
-        key = [aKey copy] ;
-    }
+    if (![super init])
+        return nil;
+
+    isServer = NO ;
+    delegate = aDel ;
+    sourceName = [aName copy] ;
+            sourceApplicationName = [[NSProcessInfo processInfo] processName] ;
+    pboard = [[NSPasteboard pasteboardWithUniqueName] retain] ;
+    key = [aKey copy] ;
     
     return self ;
 }
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSConnectionDidDieNotification object:nil];
+    
     [repobj release] ;
     [sourceName release] ;
     
@@ -304,11 +312,14 @@ NSMutableDictionary* keyedLinkBacks = nil ;
 {
     // inform peer of closure
     if (peer) {
-        [peer remoteCloseLink] ; 
-        [peer release] ;
+        LinkBack *closingPeer = peer;
+        // note we can get an incoming -remoteCloseLink while we're calling the other side's closeLink
         peer = nil ;
+        delegate = nil ;
         [self release] ;
         [keyedLinkBacks removeObjectForKey: [self itemKey]]; 
+        [closingPeer remoteCloseLink] ; 
+        [closingPeer release] ;
     }
 }
 
@@ -333,12 +344,22 @@ NSMutableDictionary* keyedLinkBacks = nil ;
     return [LinkBackServer publishServerWithName: name delegate: del] ;
 }
 
++ (BOOL)publishServerWithName:(NSString*)name bundleIdentifier:(NSString *)anIdentifier delegate:(id<LinkBackServerDelegate>)del;
+{
+    return [LinkBackServer publishServerWithName:name bundleIdentifier:anIdentifier delegate:del] ;
+}
+
 + (void)retractServerWithName:(NSString*)name 
 {
     LinkBackServer* server = [LinkBackServer LinkBackServerWithName: name] ;
     if (server) [server retract] ;
 }
 
++ (void)retractServerWithName:(NSString*)name bundleIdentifier:(NSString *)anIdentifier;
+{
+    LinkBackServer *server = [LinkBackServer LinkBackServerWithName:name bundleIdentifier:anIdentifier] ;
+    [server retract];
+}
 - (void)sendEdit 
 {
     if (!peer) [NSException raise: NSGenericException format: @"tried to request edit from a live link not connect to a server."] ;
@@ -365,10 +386,10 @@ NSMutableDictionary* keyedLinkBacks = nil ;
     
     if(nil==ret) {
         BOOL ok ;
-        NSString* serverName ;
-        NSString* serverId ;
-        NSString* appName ;
-		NSURL* url ;
+        NSString* serverName = nil ;
+        NSString* serverId = nil ;
+        NSString* appName = nil ;
+        NSURL* url = nil ;
 		
         // collect server contact information from data.
         ok = [data isKindOfClass: [NSDictionary class]] ;
@@ -382,12 +403,14 @@ NSMutableDictionary* keyedLinkBacks = nil ;
         if (!ok || !serverName || !serverId) [NSException raise: NSInvalidArgumentException format: @"LinkBackData is not of the correct format: %@", data] ;
         
         // create the live link object and try to connect to the server.
-        ret = [[LinkBack alloc] initClientWithSourceName: aName delegate: del itemKey: aKey] ;
+        ret = [[LinkBack alloc] initClientWithSourceName: aName delegate: del itemKey: aKey];
         
         if (![ret connectToServerWithName: serverName inApplication: serverId fallbackURL: url appName: appName]) {
+            // if connection to server failed, return nil.
             [ret release] ;
             ret = nil ;
-        }
+        } else
+            [ret autorelease];
     }
     
     // now with a live link in hand, request an edit
@@ -398,14 +421,9 @@ NSMutableDictionary* keyedLinkBacks = nil ;
         [my_pboard setPropertyList: data forType: LinkBackPboardType] ;
         
         [ret requestEdit] ;
-        
-    // if connection to server failed, return nil.
-    } else {
-        [ret release] ;
-        ret = nil ;
     }
     
-    return ret ;
+    return ret;
 }
 
 - (BOOL)connectToServerWithName:(NSString*)aName inApplication:(NSString*)bundleIdentifier fallbackURL:(NSURL*)url appName:(NSString*)appName 
@@ -441,5 +459,11 @@ NSMutableDictionary* keyedLinkBacks = nil ;
     // inform delegate
 	[delegate performSelectorOnMainThread: @selector(linkBackServerDidSendEdit:) withObject: self waitUntilDone: NO] ;
 }
+
+- (void)connectionDidDie:(NSNotification *)notification;
+{
+    [self remoteCloseLink];
+}
+
 
 @end

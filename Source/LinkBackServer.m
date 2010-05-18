@@ -36,6 +36,8 @@
 #import "LinkBackServer.h"
 #import "LinkBack.h"
 
+#import <objc/message.h>
+
 NSString* MakeLinkBackServerName(NSString* bundleIdentifier, NSString* name)
 {
     return [bundleIdentifier stringByAppendingFormat: @":%@",name] ;
@@ -58,12 +60,25 @@ NSMutableDictionary* LinkBackServers = nil ;
 
 + (LinkBackServer*)LinkBackServerWithName:(NSString*)aName  
 {
-    return [LinkBackServers objectForKey: aName] ;
+    return [self LinkBackServerWithName:aName bundleIdentifier:[[NSBundle mainBundle] bundleIdentifier]];
+}
+
++ (LinkBackServer*)LinkBackServerWithName:(NSString*)aName bundleIdentifier:(NSString *)bundleID
+{
+    return [LinkBackServers objectForKey:MakeLinkBackServerName(bundleID, aName)];
 }
 
 + (BOOL)publishServerWithName:(NSString*)aName delegate:(id<LinkBackServerDelegate>)del 
 {
-    LinkBackServer* serv = [[LinkBackServer alloc] initWithName: aName delegate: del] ;
+    LinkBackServer* serv = [[LinkBackServer alloc] initWithName:aName bundleIdentifier:[[NSBundle mainBundle] bundleIdentifier] delegate:del] ;
+    BOOL ret = [serv publish] ; // retains if successful
+    [serv release] ;
+    return ret ;
+}
+
++ (BOOL)publishServerWithName:(NSString*)aName bundleIdentifier:(NSString *)bundleID delegate:(id<LinkBackServerDelegate>)del ;
+{
+    LinkBackServer* serv = [[LinkBackServer alloc] initWithName:aName bundleIdentifier:bundleID delegate:del] ;
     BOOL ret = [serv publish] ; // retains if successful
     [serv release] ;
     return ret ;
@@ -72,14 +87,14 @@ NSMutableDictionary* LinkBackServers = nil ;
 BOOL LinkBackServerIsSupported(NSString* name, id supportedServers)
 {
 	BOOL ret = NO ;
-	int idx ;
+	NSUInteger idx ;
 	NSString* curServer = supportedServers ;
 	
 	// NOTE: supportedServers may be nil, an NSArray, or NSString.
 	if (supportedServers) {
 		if ([supportedServers isKindOfClass: [NSArray class]]) {
 			idx = [supportedServers count] ;
-			while((NO==ret) && (--idx >= 0)) {
+			while((NO==ret) && idx--) {
 				curServer = [supportedServers objectAtIndex: idx] ;
 				ret = [curServer isEqualToString: name] ;
 			}
@@ -89,28 +104,37 @@ BOOL LinkBackServerIsSupported(NSString* name, id supportedServers)
 	return ret ;
 }
 
-NSString* FindLinkBackServer(NSString* bundleIdentifier, NSString* serverName, NSString* dir, int level)
+NSString* FindLinkBackServer(NSString* bundleIdentifier, NSString* serverName, NSString* dir, int level, NSString **altServerPathPtr)
 {
 	NSString* ret = nil ;
 
+	// resolve any symlinks, expand tildes.
+	dir = [dir stringByStandardizingPath] ;
+    
 	NSFileManager* fm = [NSFileManager defaultManager] ;
-	NSArray* contents = [fm directoryContentsAtPath: dir] ;
-	int idx ;
+    
+    NSError *error = nil;
+    NSArray *contents = [fm subpathsOfDirectoryAtPath: dir error:&error];
+    if (!contents) {
+	NSLog(@"Unable to get subpaths of '%@' - %@", dir, error);
+	return nil;
+    }
+    
+	NSUInteger idx ;
 
-	NSLog(@"searching for %@ in folder: %@", serverName, dir) ;
-	
+#ifdef DEBUG_FindLinkBackServer
+	NSLog(@"searching for %@ (%@) in folder: %@", serverName, bundleIdentifier, dir) ;
+#endif // DEBUG_FindLinkBackServer
+        
 	// working info
 	NSString* cpath ;
 	NSBundle* cbundle ;
 	NSString* cbundleIdentifier ;
 	id supportedServers ;
 
-	// resolve any symlinks, expand tildes.
-	dir = [dir stringByStandardizingPath] ;
-	
 	// find all .app bundles in the directory and test them.
 	idx = (contents) ? [contents count] : 0 ;
-	while((nil==ret) && (--idx >= 0)) {
+	while((nil==ret) && idx--) {
 		cpath = [contents objectAtIndex: idx] ;
 		
 		if ([[cpath pathExtension] isEqualToString: @"app"]) {
@@ -118,9 +142,14 @@ NSString* FindLinkBackServer(NSString* bundleIdentifier, NSString* serverName, N
 			cbundle = [NSBundle bundleWithPath: cpath] ;
 			cbundleIdentifier = [cbundle bundleIdentifier] ;
 			
-			if ([cbundleIdentifier isEqualToString: bundleIdentifier]) {
-				supportedServers = [[cbundle infoDictionary] objectForKey: @"LinkBackServer"] ;
-				ret= (LinkBackServerIsSupported(serverName, supportedServers)) ? cpath : nil ;
+			supportedServers = [[cbundle infoDictionary] objectForKey: @"LinkBackServer"] ;
+			NSString* serverPath = (LinkBackServerIsSupported(serverName, supportedServers)) ? cpath : nil ;
+			if (nil != serverPath) {
+				if ([cbundleIdentifier isEqualToString: bundleIdentifier]) {
+					ret = serverPath ;
+				} else if ((NULL != altServerPathPtr) && (nil == *altServerPathPtr)) {
+					*altServerPathPtr = serverPath ;
+				}
 			}
 		}
 	}
@@ -128,14 +157,13 @@ NSString* FindLinkBackServer(NSString* bundleIdentifier, NSString* serverName, N
 	// if the app was not found, descend into non-app dirs.  only descend 4 levels to avoid taking forever.
 	if ((nil==ret) && (level<4)) {
 		idx = (contents) ? [contents count] : 0 ;
-		while((nil==ret) && (--idx >= 0)) {
+		while((nil==ret) && idx--) {
 			BOOL isdir ;
 			
-			cpath = [contents objectAtIndex: idx] ;
+			cpath = [dir stringByAppendingPathComponent:[contents objectAtIndex: idx]] ;
 			[fm fileExistsAtPath: cpath isDirectory: &isdir] ;
 			if (isdir && (![[cpath pathExtension] isEqualToString: @"app"])) {
-				cpath = [dir stringByAppendingPathComponent: cpath] ;
-				ret = FindLinkBackServer(bundleIdentifier, serverName, cpath, level+1) ;
+				ret = FindLinkBackServer(bundleIdentifier, serverName, cpath, level+1, altServerPathPtr) ;
 			}
 		}
 	}
@@ -145,7 +173,7 @@ NSString* FindLinkBackServer(NSString* bundleIdentifier, NSString* serverName, N
 
 void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
 {
-	int result ;
+	NSInteger result ;
 	
 	// strings for panel
 	NSBundle* b = [NSBundle bundleForClass: [LinkBack class]] ;
@@ -182,6 +210,7 @@ void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
     // if launchIfNeeded, and the connection was not available, try to launch.
 	if((!ret) && (flag)) {
 		NSString* appPath ;
+		NSString* altAppPath = nil ;
 		id linkBackServers ;
 		
 		// first, try to find the app with the bundle identifier
@@ -190,16 +219,24 @@ void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
 		appPath = (LinkBackServerIsSupported(aName, linkBackServers)) ? appPath : nil ;
 		
 		// if the found app is not supported, we will need to search for the app ourselves.
-		if (nil==appPath) appPath = FindLinkBackServer(bundleIdentifier, aName, @"/Applications",0);
-		
-		if (nil==appPath) appPath = FindLinkBackServer(bundleIdentifier, aName, @"~/Applications",0);
-		
-		if (nil==appPath) appPath = FindLinkBackServer(bundleIdentifier, aName, @"/Network/Applications",0);
-		
+		if (nil==appPath) {
+			NSArray *searchPaths = NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSAllDomainsMask, NO);   // Don't need to expand tildes as FindLinkBackServer() standardizes the path passed to it
+			NSUInteger pathCount = [searchPaths count];
+			NSUInteger pathIndex;
+			for (pathIndex = 0; pathIndex < pathCount; pathIndex++) {
+				NSString *searchPath = [searchPaths objectAtIndex:pathIndex];
+				appPath = FindLinkBackServer(bundleIdentifier, aName, searchPath, 0, &altAppPath);
+				if (nil!=appPath)
+					break;
+			}
+		}
+
+		if (nil==appPath) appPath = altAppPath;
+                
 		// if app path has been found, launch the app.
 		if (appPath) {
-			[[NSWorkspace sharedWorkspace] launchApplication: appName] ;
-		} else {
+			[[NSWorkspace sharedWorkspace] launchApplication: appPath] ;
+		} else if (![[NSWorkspace sharedWorkspace] launchApplication: appName]) {
 			LinkBackRunAppNotFoundPanel(appName, url) ;
 			connect = NO ;
 		}
@@ -220,27 +257,31 @@ void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
     return ret ;
 }
 
-- (id)initWithName:(NSString*)aName delegate:(id<LinkBackServerDelegate>)aDel
+- (id)initWithName:(NSString*)aName bundleIdentifier:(NSString *)anIdentifier delegate:(id<LinkBackServerDelegate>)aDel
 {
-    if (self = [super init]) {
-        name = [aName copy] ;
-        delegate = aDel ;
-        listener = nil ;
-    }
+    if (![super init])
+        return nil;
+
+    bundleIdentifier = [anIdentifier copy];
+    name = [aName copy] ;
+    delegate = aDel ;
+    listener = nil ;
     
     return self ;
 }
 
 - (void)dealloc
 {
-    if (listener) [self retract] ;
-    [name release] ;
-    [super dealloc] ;
+    if (listener) 
+        [self retract];
+    [name release];
+    [bundleIdentifier release];
+    [super dealloc];
 }
 
 - (BOOL)publish
 {
-    NSString* serverName = MakeLinkBackServerName([[NSBundle mainBundle] bundleIdentifier], name) ;
+    NSString* serverName = MakeLinkBackServerName(bundleIdentifier, name) ;
     BOOL ret = YES ;
     
     // create listener and connect
@@ -252,7 +293,7 @@ void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
     // if successful, retain connection and add self to list of servers.
     if (ret) {
         [listener retain] ;
-        [LinkBackServers setObject: self forKey: name] ;
+        [LinkBackServers setObject: self forKey: serverName] ;
     } else listener = nil ; // listener will dealloc on its own. 
     
     return ret ;
@@ -266,14 +307,18 @@ void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
         listener = nil ;
     }
     
-    [LinkBackServers removeObjectForKey: name] ;
+    [LinkBackServers removeObjectForKey: MakeLinkBackServerName(bundleIdentifier, name)] ;
 }
 
-- (LinkBack*)initiateLinkBackFromClient:(LinkBack*)clientLinkBack 
+- (LinkBack*)initiateLinkBackFromClient:(LinkBack*)clientLinkBack
 {
     LinkBack* ret = [[LinkBack alloc] initServerWithClient: clientLinkBack delegate: delegate] ;
     
     // NOTE: we do not release because LinkBack will release itself when it the link closes. (caj)
+    
+    // But we need to pretend to release to hack around clang:
+    objc_msgSend(ret, @selector(retain));
+    [ret autorelease];
     
     return ret ; 
 }

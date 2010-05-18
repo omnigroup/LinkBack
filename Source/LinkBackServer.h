@@ -47,19 +47,23 @@ NSString* MakeLinkBackServerName(NSString* bundleIdentifier, NSString* name) ;
 
 // a LinkBack server is created for each published server.  This simply responds to connection requests to create new live links.
 @interface LinkBackServer : NSObject <LinkBackServer> {
+    NSString *bundleIdentifier;
     NSConnection* listener ;
     NSString* name ;
     id<LinkBackServerDelegate> delegate ;
 }
 
-+ (LinkBackServer*)LinkBackServerWithName:(NSString*)name  ;
++ (LinkBackServer*)LinkBackServerWithName:(NSString*)name;
++ (LinkBackServer*)LinkBackServerWithName:(NSString*)aName bundleIdentifier:(NSString *)bundleID;
+
 + (BOOL)publishServerWithName:(NSString*)name delegate:(id<LinkBackServerDelegate>)del ;
++ (BOOL)publishServerWithName:(NSString*)name bundleIdentifier:(NSString *)bundleID delegate:(id<LinkBackServerDelegate>)del ;
 
 + (LinkBackServer*)LinkBackServerWithName:(NSString*)name inApplication:(NSString*)bundleIdentifier launchIfNeeded:(BOOL)flag fallbackURL:(NSURL*)url appName:(NSString*)appName ;
 
 // This method is used by clients to connect 
 
-- (id)initWithName:(NSString*)name delegate:(id<LinkBackServerDelegate>)aDel;
+- (id)initWithName:(NSString*)name bundleIdentifier:(NSString *)bundleID delegate:(id<LinkBackServerDelegate>)aDel;
 
 - (BOOL)publish ; // creates the connection and adds to the list.
 - (void)retract ;

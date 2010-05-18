@@ -139,9 +139,11 @@ BOOL LinkBackDataBelongsToActiveApplication(id data) ;
 // ...........................................................................
 // Server-side methods
 //
-+ (BOOL)publishServerWithName:(NSString*)name delegate:(id<LinkBackServerDelegate>)del ;
++ (BOOL)publishServerWithName:(NSString*)name delegate:(id<LinkBackServerDelegate>)del;
++ (BOOL)publishServerWithName:(NSString*)name bundleIdentifier:(NSString *)anIdentifier delegate:(id<LinkBackServerDelegate>)del;
 
-+ (void)retractServerWithName:(NSString*)name ;
++ (void)retractServerWithName:(NSString*)name;
++ (void)retractServerWithName:(NSString*)name bundleIdentifier:(NSString *)anIdentifier;
 
 - (void)sendEdit ;
 
