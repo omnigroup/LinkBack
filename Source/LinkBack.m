@@ -52,7 +52,7 @@ id MakeLinkBackData(NSString* serverName, id appData)
 {
     NSMutableDictionary* ret = [[NSMutableDictionary alloc] init] ;
     NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier] ;
-    id version = @"alpha.01" ;
+    id version = @"A" ;
     
     [ret setObject: bundleId forKey: LinkBackServerBundleIdentifierKey]; 
     [ret setObject: serverName forKey: LinkBackServerNameKey] ;

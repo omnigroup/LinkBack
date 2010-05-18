@@ -71,17 +71,34 @@ NSMutableDictionary* LinkBackServers = nil ;
 
 + (LinkBackServer*)LinkBackServerWithName:(NSString*)aName inApplication:(NSString*)bundleIdentifier launchIfNeeded:(BOOL)flag 
 {
-    NSString* serverName = MakeLinkBackServerName(bundleIdentifier, aName) ;
-    id ret ;
+	NSString* serverName = MakeLinkBackServerName(bundleIdentifier, aName) ;
+    id ret = nil ;
+	NSTimeInterval tryMark ;
+	
+	// Let see if its already running
+	BOOL appLaunched = FALSE;
+    NSArray *appsArray = [[NSWorkspace sharedWorkspace] launchedApplications];
+	NSEnumerator *appsArrayEnumerator = [appsArray objectEnumerator];
+	NSDictionary *appDict;
+	NSString *appBundleIdentifier;
+	while (appDict = [appsArrayEnumerator nextObject]) 
+	{
+		appBundleIdentifier = [appDict objectForKey:@"NSApplicationBundleIdentifier"];
+		if((appBundleIdentifier) && ([appBundleIdentifier isEqualToString:bundleIdentifier]))
+			appLaunched = TRUE;
+	}	
+	
+    // if flag, and not launched try to launch.
+	if((!appLaunched) && (flag))
+		[[NSWorkspace sharedWorkspace] launchAppWithBundleIdentifier: bundleIdentifier options: (NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchWithoutActivation) additionalEventParamDescriptor: nil launchIdentifier: nil] ;
     
-    // if flag, try to launch.  If the app is already launched, this method will do nothing anyway.
-    [[NSWorkspace sharedWorkspace] launchAppWithBundleIdentifier: bundleIdentifier options: (NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchWithoutActivation) additionalEventParamDescriptor: nil launchIdentifier: nil] ;
-    
-    // now, try to connect
-    ret = [NSConnection rootProxyForConnectionWithRegisteredName: serverName host: nil] ;
+    // now, try to connect.  retry connection for a while if we did not succeed at first.  This gives the app time to launch.
+	tryMark = [NSDate timeIntervalSinceReferenceDate] ;
+	do {
+		ret = [NSConnection rootProxyForConnectionWithRegisteredName: serverName host: nil] ;
+	} while ((!ret) && (([NSDate timeIntervalSinceReferenceDate]-tryMark)<10)) ;
+
     [ret setProtocolForProxy: @protocol(LinkBackServer)] ;
-    
-    // MAY NEED TO RETRY HERE, esp if launching app.
     
     return ret ;
 }

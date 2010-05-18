@@ -1064,7 +1064,7 @@ static int SKT_orderGraphicsFrontToBack(id graphic1, id graphic2, void *gArray) 
         NSPasteboard *pboard = [NSPasteboard generalPasteboard];
         id dta ;
         
-        [pboard declareTypes:[NSArray arrayWithObjects:SKTDrawDocumentType, NSTIFFPboardType, NSPDFPboardType, nil] owner:nil];
+        [pboard declareTypes:[NSArray arrayWithObjects:SKTDrawDocumentType, NSTIFFPboardType, NSPDFPboardType, LinkBackPboardType, nil] owner:nil];
         
         dta = [document drawDocumentDataForGraphics:orderedSelection] ;
         [pboard setData: dta forType:SKTDrawDocumentType];
