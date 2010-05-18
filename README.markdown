@@ -37,6 +37,6 @@ The source is set up assuming a customized build products directory since that i
 Building
 --------
 
-...
+The Build script in the OmniGroup repository will find the LinkBack checkout, if you've placed it as above.
 
 Enjoy!
