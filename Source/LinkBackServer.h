@@ -55,7 +55,8 @@ NSString* MakeLinkBackServerName(NSString* bundleIdentifier, NSString* name) ;
 + (LinkBackServer*)LinkBackServerWithName:(NSString*)name  ;
 + (BOOL)publishServerWithName:(NSString*)name delegate:(id<LinkBackServerDelegate>)del ;
 
-+ (LinkBackServer*)LinkBackServerWithName:(NSString*)name inApplication:(NSString*)bundleIdentifier launchIfNeeded:(BOOL)flag ;
++ (LinkBackServer*)LinkBackServerWithName:(NSString*)name inApplication:(NSString*)bundleIdentifier launchIfNeeded:(BOOL)flag fallbackURL:(NSURL*)url appName:(NSString*)appName ;
+
 // This method is used by clients to connect 
 
 - (id)initWithName:(NSString*)name delegate:(id<LinkBackServerDelegate>)aDel;

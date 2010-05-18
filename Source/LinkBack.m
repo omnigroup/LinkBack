@@ -118,8 +118,8 @@ NSString* LinkBackEditNoneMenuTitle()
     NSMutableDictionary* ret = [[NSMutableDictionary alloc] init] ;
     NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier] ;
 	NSString* url = [appInfo objectForKey: @"LinkBackApplicationURL"] ;
-	NSString* appName = [[[NSWorkspace sharedWorkspace] activeApplication] objectForKey: @"NSApplicationName"] ;
-    id version = @"A" ;
+	NSString* appName = [[NSProcessInfo processInfo] processName] ;
+	id version = @"A" ;
 
 	if (nil==serverName) [NSException raise: NSInvalidArgumentException format: @"LinkBack Data cannot be created without a server name."] ;
 	
@@ -226,6 +226,7 @@ NSMutableDictionary* keyedLinkBacks = nil ;
     if (self = [super init]) {
         peer = [aLinkBack retain] ;
         sourceName = [[peer sourceName] copy] ;
+		sourceApplicationName = [[peer sourceApplicationName] copy] ;
         key = [[peer itemKey] copy] ;
         isServer = YES ;
         delegate = aDel ;
@@ -241,6 +242,7 @@ NSMutableDictionary* keyedLinkBacks = nil ;
         isServer = NO ;
         delegate = aDel ;
         sourceName = [aName copy] ;
+		sourceApplicationName = [[NSProcessInfo processInfo] processName] ;
         pboard = [[NSPasteboard pasteboardWithUniqueName] retain] ;
         key = [aKey copy] ;
     }
@@ -285,6 +287,11 @@ NSMutableDictionary* keyedLinkBacks = nil ;
 - (NSString*)sourceName
 {
     return sourceName ;
+}
+
+- (NSString*)sourceApplicationName 
+{
+	return sourceApplicationName ;
 }
 
 - (NSString*)itemKey
@@ -360,12 +367,16 @@ NSMutableDictionary* keyedLinkBacks = nil ;
         BOOL ok ;
         NSString* serverName ;
         NSString* serverId ;
-        
+        NSString* appName ;
+		NSURL* url ;
+		
         // collect server contact information from data.
         ok = [data isKindOfClass: [NSDictionary class]] ;
         if (ok) {
             serverName = [data objectForKey: LinkBackServerNameKey] ;
             serverId = [data objectForKey: LinkBackServerBundleIdentifierKey];
+			appName = [data linkBackSourceApplicationName] ;
+			url = [data linkBackApplicationURL] ;
         }
         
         if (!ok || !serverName || !serverId) [NSException raise: NSInvalidArgumentException format: @"LinkBackData is not of the correct format: %@", data] ;
@@ -373,7 +384,7 @@ NSMutableDictionary* keyedLinkBacks = nil ;
         // create the live link object and try to connect to the server.
         ret = [[LinkBack alloc] initClientWithSourceName: aName delegate: del itemKey: aKey] ;
         
-        if (![ret connectToServerWithName: serverName inApplication: serverId]) {
+        if (![ret connectToServerWithName: serverName inApplication: serverId fallbackURL: url appName: appName]) {
             [ret release] ;
             ret = nil ;
         }
@@ -397,10 +408,10 @@ NSMutableDictionary* keyedLinkBacks = nil ;
     return ret ;
 }
 
-- (BOOL)connectToServerWithName:(NSString*)aName inApplication:(NSString*)bundleIdentifier 
+- (BOOL)connectToServerWithName:(NSString*)aName inApplication:(NSString*)bundleIdentifier fallbackURL:(NSURL*)url appName:(NSString*)appName 
 {
     // get the LinkBackServer.
-    LinkBackServer* server = [LinkBackServer LinkBackServerWithName: aName inApplication: bundleIdentifier launchIfNeeded: YES] ;
+    LinkBackServer* server = [LinkBackServer LinkBackServerWithName: aName inApplication: bundleIdentifier launchIfNeeded: YES fallbackURL: url appName: appName] ;
     if (!server) return NO ; // failed to get server
     
     peer = [[server initiateLinkBackFromClient: self] retain] ;

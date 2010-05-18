@@ -69,37 +69,154 @@ NSMutableDictionary* LinkBackServers = nil ;
     return ret ;
 }
 
-+ (LinkBackServer*)LinkBackServerWithName:(NSString*)aName inApplication:(NSString*)bundleIdentifier launchIfNeeded:(BOOL)flag 
+BOOL LinkBackServerIsSupported(NSString* name, id supportedServers)
 {
+	BOOL ret = NO ;
+	int idx ;
+	NSString* curServer = supportedServers ;
+	
+	// NOTE: supportedServers may be nil, an NSArray, or NSString.
+	if (supportedServers) {
+		if ([supportedServers isKindOfClass: [NSArray class]]) {
+			idx = [supportedServers count] ;
+			while((NO==ret) && (--idx >= 0)) {
+				curServer = [supportedServers objectAtIndex: idx] ;
+				ret = [curServer isEqualToString: name] ;
+			}
+		} else ret = [curServer isEqualToString: name] ; 
+	}
+	
+	return ret ;
+}
+
+NSString* FindLinkBackServer(NSString* bundleIdentifier, NSString* serverName, NSString* dir, int level)
+{
+	NSString* ret = nil ;
+
+	NSFileManager* fm = [NSFileManager defaultManager] ;
+	NSArray* contents = [fm directoryContentsAtPath: dir] ;
+	int idx ;
+
+	NSLog(@"searching for %@ in folder: %@", serverName, dir) ;
+	
+	// working info
+	NSString* cpath ;
+	NSBundle* cbundle ;
+	NSString* cbundleIdentifier ;
+	id supportedServers ;
+
+	// resolve any symlinks, expand tildes.
+	dir = [dir stringByStandardizingPath] ;
+	
+	// find all .app bundles in the directory and test them.
+	idx = (contents) ? [contents count] : 0 ;
+	while((nil==ret) && (--idx >= 0)) {
+		cpath = [contents objectAtIndex: idx] ;
+		
+		if ([[cpath pathExtension] isEqualToString: @"app"]) {
+			cpath = [dir stringByAppendingPathComponent: cpath] ;
+			cbundle = [NSBundle bundleWithPath: cpath] ;
+			cbundleIdentifier = [cbundle bundleIdentifier] ;
+			
+			if ([cbundleIdentifier isEqualToString: bundleIdentifier]) {
+				supportedServers = [[cbundle infoDictionary] objectForKey: @"LinkBackServer"] ;
+				ret= (LinkBackServerIsSupported(serverName, supportedServers)) ? cpath : nil ;
+			}
+		}
+	}
+	
+	// if the app was not found, descend into non-app dirs.  only descend 4 levels to avoid taking forever.
+	if ((nil==ret) && (level<4)) {
+		idx = (contents) ? [contents count] : 0 ;
+		while((nil==ret) && (--idx >= 0)) {
+			BOOL isdir ;
+			
+			cpath = [contents objectAtIndex: idx] ;
+			[fm fileExistsAtPath: cpath isDirectory: &isdir] ;
+			if (isdir && (![[cpath pathExtension] isEqualToString: @"app"])) {
+				cpath = [dir stringByAppendingPathComponent: cpath] ;
+				ret = FindLinkBackServer(bundleIdentifier, serverName, cpath, level+1) ;
+			}
+		}
+	}
+	
+	return ret ;
+}
+
+void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
+{
+	int result ;
+	
+	// strings for panel
+	NSBundle* b = [NSBundle bundleForClass: [LinkBack class]] ;
+	NSString* title ;
+	NSString* msg ;
+	NSString* ok ;
+	NSString* urlstr ;
+	
+	title = NSLocalizedStringFromTableInBundle(@"_AppNotFoundTitle", @"Localized", b, @"app not found title") ;
+	ok = NSLocalizedStringFromTableInBundle(@"_OK", @"Localized", b, @"ok") ;
+
+	msg = (url) ? NSLocalizedStringFromTableInBundle(@"_AppNotFoundMessageWithURL", @"Localized", b, @"app not found msg") : NSLocalizedStringFromTableInBundle(@"_AppNotFoundMessageNoURL", @"Localized", b, @"app not found msg") ;
+	
+	urlstr = (url) ? NSLocalizedStringFromTableInBundle(@"_GetApplication", @"Localized", b, @"Get application") : nil ;
+
+	title = [NSString stringWithFormat: title, appName] ;
+	
+	result = NSRunCriticalAlertPanel(title, msg, ok, urlstr, nil) ;
+	if (NSAlertAlternateReturn == result) {
+		[[NSWorkspace sharedWorkspace] openURL: url] ;
+	}
+}
+
++ (LinkBackServer*)LinkBackServerWithName:(NSString*)aName inApplication:(NSString*)bundleIdentifier launchIfNeeded:(BOOL)flag fallbackURL:(NSURL*)url appName:(NSString*)appName ;
+{
+	BOOL connect = YES ;
 	NSString* serverName = MakeLinkBackServerName(bundleIdentifier, aName) ;
     id ret = nil ;
 	NSTimeInterval tryMark ;
 	
-	// Let see if its already running
-	BOOL appLaunched = FALSE;
-    NSArray *appsArray = [[NSWorkspace sharedWorkspace] launchedApplications];
-	NSEnumerator *appsArrayEnumerator = [appsArray objectEnumerator];
-	NSDictionary *appDict;
-	NSString *appBundleIdentifier;
-	while (appDict = [appsArrayEnumerator nextObject]) 
-	{
-		appBundleIdentifier = [appDict objectForKey:@"NSApplicationBundleIdentifier"];
-		if((appBundleIdentifier) && ([appBundleIdentifier isEqualToString:bundleIdentifier]))
-			appLaunched = TRUE;
-	}	
+	// Try to connect
+	ret = [NSConnection rootProxyForConnectionWithRegisteredName: serverName host: nil] ;
 	
-    // if flag, and not launched try to launch.
-	if((!appLaunched) && (flag))
-		[[NSWorkspace sharedWorkspace] launchAppWithBundleIdentifier: bundleIdentifier options: (NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchWithoutActivation) additionalEventParamDescriptor: nil launchIdentifier: nil] ;
+    // if launchIfNeeded, and the connection was not available, try to launch.
+	if((!ret) && (flag)) {
+		NSString* appPath ;
+		id linkBackServers ;
+		
+		// first, try to find the app with the bundle identifier
+		appPath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier: bundleIdentifier] ;
+		linkBackServers = [[[NSBundle bundleWithPath: appPath] infoDictionary] objectForKey: @"LinkBackServer"] ; 
+		appPath = (LinkBackServerIsSupported(aName, linkBackServers)) ? appPath : nil ;
+		
+		// if the found app is not supported, we will need to search for the app ourselves.
+		if (nil==appPath) appPath = FindLinkBackServer(bundleIdentifier, aName, @"/Applications",0);
+		
+		if (nil==appPath) appPath = FindLinkBackServer(bundleIdentifier, aName, @"~/Applications",0);
+		
+		if (nil==appPath) appPath = FindLinkBackServer(bundleIdentifier, aName, @"/Network/Applications",0);
+		
+		// if app path has been found, launch the app.
+		if (appPath) {
+			[[NSWorkspace sharedWorkspace] launchApplication: appName] ;
+		} else {
+			LinkBackRunAppNotFoundPanel(appName, url) ;
+			connect = NO ;
+		}
+	}
     
-    // now, try to connect.  retry connection for a while if we did not succeed at first.  This gives the app time to launch.
-	tryMark = [NSDate timeIntervalSinceReferenceDate] ;
-	do {
-		ret = [NSConnection rootProxyForConnectionWithRegisteredName: serverName host: nil] ;
-	} while ((!ret) && (([NSDate timeIntervalSinceReferenceDate]-tryMark)<10)) ;
+    // if needed, try to connect.  
+	// retry connection for a while if we did not succeed at first.  This gives the app time to launch.
+	if (connect && (nil==ret)) {
+		tryMark = [NSDate timeIntervalSinceReferenceDate] ;
+		do {
+			ret = [NSConnection rootProxyForConnectionWithRegisteredName: serverName host: nil] ;
+		} while ((!ret) && (([NSDate timeIntervalSinceReferenceDate]-tryMark)<10)) ;
+		
+	}
 
-    [ret setProtocolForProxy: @protocol(LinkBackServer)] ;
-    
+	// setup protocol and return
+    if (ret) [ret setProtocolForProxy: @protocol(LinkBackServer)] ;
     return ret ;
 }
 

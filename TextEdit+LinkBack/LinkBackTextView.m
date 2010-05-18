@@ -23,8 +23,7 @@
     while(type = [e nextObject]) {
         if ([type isEqual: NSTIFFPboardType]) hasTIFF = YES ;
         if ([type isEqual: NSPDFPboardType]) hasPDF = YES ;
-//        if ([type isEqual: LinkBackPboardType]) hasLinkBack = YES ;
-        hasLinkBack = YES ;
+        if ([type isEqual: LinkBackPboardType]) hasLinkBack = YES ;
     }
     
     if (hasLinkBack && (hasPDF || hasTIFF)) {

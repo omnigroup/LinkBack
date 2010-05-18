@@ -55,7 +55,8 @@ NSString *SKTDrawDocumentType = @"Apple Sketch Graphic Format";
 {
     if (link) {
         NSString* sourceName = [link sourceName] ;
-        NSString* ret = [NSString stringWithFormat: @"Graphics from %@", sourceName] ;
+		NSString* sourceAppName = [link sourceApplicationName] ;
+        NSString* ret = [NSString stringWithFormat: @"Graphics from %@ (%@)", sourceName, sourceAppName] ;
         return ret ;
     } else return [super displayName] ;
 }

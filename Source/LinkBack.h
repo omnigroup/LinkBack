@@ -115,6 +115,7 @@ BOOL LinkBackDataBelongsToActiveApplication(id data) ;
     NSPasteboard* pboard ;
     id repobj ; 
     NSString* sourceName ;
+	NSString* sourceApplicationName ;
     NSString* key ;
 }
 
@@ -132,6 +133,7 @@ BOOL LinkBackDataBelongsToActiveApplication(id data) ;
 // Applications can use this represented object to attach some meaning to the live link.  For example, a client application may set this to the object to be modified when the edit is refreshed.  This retains its value.
 
 - (NSString*)sourceName ;
+- (NSString*)sourceApplicationName ;
 - (NSString*)itemKey ; // maybe this matters only on the client side.
 
 // ...........................................................................
@@ -156,7 +158,8 @@ BOOL LinkBackDataBelongsToActiveApplication(id data) ;
 
 - (id)initClientWithSourceName:(NSString*)aName delegate:(id<LinkBackClientDelegate>)aDel itemKey:(NSString*)aKey ;
 
-- (BOOL)connectToServerWithName:(NSString*)aName inApplication:(NSString*)bundleIdentifier ;
+- (BOOL)connectToServerWithName:(NSString*)aName inApplication:(NSString*)bundleIdentifier fallbackURL:(NSURL*)url appName:(NSString*)appName ;
+
 - (void)requestEdit ;
 
 @end
