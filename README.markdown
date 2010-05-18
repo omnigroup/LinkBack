@@ -12,17 +12,17 @@ Checking out the source
 
 This version of LinkBack depends on the OmniGroup Xcode configuration files, so you'll need a copy of the OmniGroup public frameworks:
 
-  git clone git://github.com/omnigroup/OmniGroup
+	git clone git://github.com/omnigroup/OmniGroup
 
 Also, internally, we keep the LinkBack source in a peer fold of "OmniGroup" called "Nisus", so you'll need:
 
-  mkdir Nisus; cd Nisus
-  git clone git://github.com/omnigroup/LinkBack
+	mkdir Nisus; cd Nisus
+	git clone git://github.com/omnigroup/LinkBack
 
 Alternatively, you can check out LinkBack inside the OmniGroup directory:
 
-  cd OmniGroup
-  git clone git://github.com/omnigroup/LinkBack
+	cd OmniGroup
+	git clone git://github.com/omnigroup/LinkBack
 
 
 Configuring Xcode
