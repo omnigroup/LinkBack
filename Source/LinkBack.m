@@ -223,7 +223,7 @@ NSMutableDictionary* keyedLinkBacks = nil ;
 
 - (id)initServerWithClient: (LinkBack*)aLinkBack delegate: (id<LinkBackServerDelegate>)aDel 
 {
-    if (![super init])
+    if (!(self = [super init]))
         return nil;
 
     peer = [aLinkBack retain] ;
@@ -243,7 +243,7 @@ NSMutableDictionary* keyedLinkBacks = nil ;
 
 - (id)initClientWithSourceName:(NSString*)aName delegate:(id<LinkBackClientDelegate>)aDel itemKey:(NSString*)aKey ;
 {
-    if (![super init])
+    if (!(self = [super init]))
         return nil;
 
     isServer = NO ;

@@ -259,7 +259,7 @@ void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
 
 - (id)initWithName:(NSString*)aName bundleIdentifier:(NSString *)anIdentifier delegate:(id<LinkBackServerDelegate>)aDel
 {
-    if (![super init])
+    if (!(self = [super init]))
         return nil;
 
     bundleIdentifier = [anIdentifier copy];
