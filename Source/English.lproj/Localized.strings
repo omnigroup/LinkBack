@@ -1,4 +1,4 @@
-"_EditPattern" = "%@ in %@" ;
+"_EditPattern" = "%1$@ in %2$@" ;
 "_EditMultiple" = "Edit LinkBack Items" ;
 "_EditNone" = "Edit LinkBack Item" ;
 "_Edit" = "Edit" ;

@@ -65,7 +65,7 @@ id LinkBackGetAppData(id LinkBackData)
 	return [LinkBackData linkBackAppData] ;
 }
 
-NSString* LinkBackUniqueItemKey() 
+NSString* LinkBackUniqueItemKey(void)
 {
     static int counter = 0 ;
     
@@ -79,14 +79,14 @@ BOOL LinkBackDataBelongsToActiveApplication(id data)
 	return [data linkBackDataBelongsToActiveApplication] ;
 }
 
-NSString* LinkBackEditMultipleMenuTitle() 
+NSString* LinkBackEditMultipleMenuTitle(void) 
 {
 	NSBundle* bundle = [NSBundle bundleForClass: [LinkBack class]] ;
 	NSString* ret = [bundle localizedStringForKey: @"_EditMultiple" value: @"Edit LinkBack Items" table: @"Localized"] ;
 	return ret ;
 }
 
-NSString* LinkBackEditNoneMenuTitle() 
+NSString* LinkBackEditNoneMenuTitle(void) 
 {
 	NSBundle* bundle = [NSBundle bundleForClass: [LinkBack class]] ;
 	NSString* ret = [bundle localizedStringForKey: @"_EditNone" value: @"Edit LinkBack Item" table: @"Localized"] ;
@@ -233,11 +233,9 @@ NSMutableDictionary* keyedLinkBacks = nil ;
     isServer = YES ;
     delegate = aDel ;
     [keyedLinkBacks setObject: self forKey: key] ;
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(connectionDidDie:)
-                                                 name:NSConnectionDidDieNotification
-                                               object:[(NSDistantObject *)peer connectionForProxy]];
+    if ([peer isKindOfClass:[NSDistantObject class]])
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionDidDie:) name:NSConnectionDidDieNotification object:[(NSDistantObject *)peer connectionForProxy]];
+
     return self ;
 }
 
@@ -316,7 +314,6 @@ NSMutableDictionary* keyedLinkBacks = nil ;
         // note we can get an incoming -remoteCloseLink while we're calling the other side's closeLink
         peer = nil ;
         delegate = nil ;
-        [self release] ;
         [keyedLinkBacks removeObjectForKey: [self itemKey]]; 
         [closingPeer remoteCloseLink] ; 
         [closingPeer release] ;
@@ -324,13 +321,12 @@ NSMutableDictionary* keyedLinkBacks = nil ;
 }
 
 // this method is called whenever the link is about to be or has been closed by the other side.
-- (void)remoteCloseLink 
+- (oneway void)remoteCloseLink 
 {
     if (peer) {
         [peer release] ;
         peer = nil ;
-        [self release] ;
-        [keyedLinkBacks removeObjectForKey: [self itemKey]]; 
+        [keyedLinkBacks removeObjectForKey: [self itemKey]];
     }
 
     if (delegate) [delegate linkBackDidClose: self] ;

@@ -33,8 +33,10 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+#import <Foundation/NSDictionary.h>
+#import <Foundation/NSDate.h>
 
-#import <Cocoa/Cocoa.h>
+@class NSPasteboard;
 
 // Use this pasteboard type to put LinkBack data to the pasteboard.  Use MakeLinkBackData() to create the data.
 extern NSString* LinkBackPboardType ;
@@ -46,9 +48,9 @@ extern NSString* LinkBackRefreshActionName ;
 //
 // Support Functions
 //
-NSString* LinkBackUniqueItemKey() ;
-NSString* LinkBackEditMultipleMenuTitle() ;
-NSString* LinkBackEditNoneMenuTitle() ;
+extern NSString* LinkBackUniqueItemKey(void);
+extern NSString* LinkBackEditMultipleMenuTitle(void);
+extern NSString* LinkBackEditNoneMenuTitle(void);
 
 // 
 // Deprecated Support Functions -- use LinkBack Data Category instead

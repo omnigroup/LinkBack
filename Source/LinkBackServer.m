@@ -84,7 +84,7 @@ NSMutableDictionary* LinkBackServers = nil ;
     return ret ;
 }
 
-BOOL LinkBackServerIsSupported(NSString* name, id supportedServers)
+static BOOL LinkBackServerIsSupported(NSString* name, id supportedServers)
 {
 	BOOL ret = NO ;
 	NSUInteger idx ;
@@ -104,7 +104,7 @@ BOOL LinkBackServerIsSupported(NSString* name, id supportedServers)
 	return ret ;
 }
 
-NSString* FindLinkBackServer(NSString* bundleIdentifier, NSString* serverName, NSString* dir, int level, NSString **altServerPathPtr)
+static NSString* FindLinkBackServer(NSString* bundleIdentifier, NSString* serverName, NSString* dir, int level, NSString **altServerPathPtr)
 {
 	NSString* ret = nil ;
 
@@ -171,7 +171,7 @@ NSString* FindLinkBackServer(NSString* bundleIdentifier, NSString* serverName, N
 	return ret ;
 }
 
-void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
+static void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
 {
 	NSInteger result ;
 	
@@ -199,14 +199,18 @@ void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
 
 + (LinkBackServer*)LinkBackServerWithName:(NSString*)aName inApplication:(NSString*)bundleIdentifier launchIfNeeded:(BOOL)flag fallbackURL:(NSURL*)url appName:(NSString*)appName ;
 {
-	BOOL connect = YES ;
 	NSString* serverName = MakeLinkBackServerName(bundleIdentifier, aName) ;
     id ret = nil ;
-	NSTimeInterval tryMark ;
-	
+
+	// Is this our own server?
+    ret = [LinkBackServers objectForKey:serverName];
+    if (ret != nil)
+        return ret;
+
 	// Try to connect
 	ret = [NSConnection rootProxyForConnectionWithRegisteredName: serverName host: nil] ;
-	
+	BOOL connect = YES ;
+
     // if launchIfNeeded, and the connection was not available, try to launch.
 	if((!ret) && (flag)) {
 		NSString* appPath ;
@@ -245,7 +249,7 @@ void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
     // if needed, try to connect.  
 	// retry connection for a while if we did not succeed at first.  This gives the app time to launch.
 	if (connect && (nil==ret)) {
-		tryMark = [NSDate timeIntervalSinceReferenceDate] ;
+		NSTimeInterval tryMark = [NSDate timeIntervalSinceReferenceDate] ;
 		do {
 			ret = [NSConnection rootProxyForConnectionWithRegisteredName: serverName host: nil] ;
 		} while ((!ret) && (([NSDate timeIntervalSinceReferenceDate]-tryMark)<10)) ;
@@ -293,9 +297,9 @@ void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
     // if successful, retain connection and add self to list of servers.
     if (ret) {
         [listener retain] ;
-        [LinkBackServers setObject: self forKey: serverName] ;
-    } else listener = nil ; // listener will dealloc on its own. 
+    } else listener = nil ; // listener will dealloc on its own.
     
+    [LinkBackServers setObject: self forKey: serverName] ; // Always keep track of our published servers
     return ret ;
 }
 
@@ -317,7 +321,8 @@ void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
     // NOTE: we do not release because LinkBack will release itself when it the link closes. (caj)
     
     // But we need to pretend to release to hack around clang:
-    objc_msgSend(ret, @selector(retain));
+    void (*imp)(id, SEL) = (typeof(imp))objc_msgSend;
+    imp(ret, @selector(retain));
     [ret autorelease];
     
     return ret ; 
