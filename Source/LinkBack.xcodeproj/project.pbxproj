@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -11,35 +11,47 @@
 		203AFD7C0687DA7000B08189 /* LinkBack.m in Sources */ = {isa = PBXBuildFile; fileRef = 203AFD780687DA7000B08189 /* LinkBack.m */; };
 		203AFD7D0687DA7000B08189 /* LinkBackServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 203AFD790687DA7000B08189 /* LinkBackServer.h */; settings = {ATTRIBUTES = (); }; };
 		203AFD7E0687DA7000B08189 /* LinkBackServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 203AFD7A0687DA7000B08189 /* LinkBackServer.m */; };
-		20E80E6507F2116B0060ED13 /* Localized.strings in Resources */ = {isa = PBXBuildFile; fileRef = 20E80E6307F2116B0060ED13 /* Localized.strings */; };
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		34E16FB81CEA2DCE0097828B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34E16FB41CEA2DCE0097828B /* FixStringsFile.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8DD76F7E0486A8DE00D96B5E;
+			remoteInfo = FixStringsFile;
+		};
+		34E16FBA1CEA2DE50097828B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34E16FB41CEA2DCE0097828B /* FixStringsFile.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 8DD76F740486A8DE00D96B5E;
+			remoteInfo = FixStringsFile;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
-		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
-		089C1667FE841158C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		089C1667FE841158C02AAC07 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		203AFD770687DA7000B08189 /* LinkBack.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = LinkBack.h; sourceTree = "<group>"; };
 		203AFD780687DA7000B08189 /* LinkBack.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = LinkBack.m; sourceTree = "<group>"; };
 		203AFD790687DA7000B08189 /* LinkBackServer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = LinkBackServer.h; sourceTree = "<group>"; };
 		203AFD7A0687DA7000B08189 /* LinkBackServer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = LinkBackServer.m; sourceTree = "<group>"; };
-		20E80E6407F2116B0060ED13 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localized.strings; sourceTree = "<group>"; };
 		32DBCF5E0370ADEE00C91783 /* LinkBack_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LinkBack_Prefix.pch; sourceTree = "<group>"; };
-		4A8BBBE708AB131E00C5998B /* Omni-Application-Coverage.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Application-Coverage.xcconfig"; sourceTree = "<group>"; };
+		34325A31214C653200080769 /* LinkBack.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = LinkBack.xcfilelist; sourceTree = "<group>"; };
+		34E16FB41CEA2DCE0097828B /* FixStringsFile.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FixStringsFile.xcodeproj; path = ../../../OmniGroup/Tools/FixStringsFile/FixStringsFile.xcodeproj; sourceTree = "<group>"; };
 		4A8BBBE808AB131E00C5998B /* Omni-Application-Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Application-Debug.xcconfig"; sourceTree = "<group>"; };
 		4A8BBBE908AB131E00C5998B /* Omni-Application-Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Application-Release.xcconfig"; sourceTree = "<group>"; };
-		4A8BBBEA08AB131E00C5998B /* Omni-Framework-Coverage.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Framework-Coverage.xcconfig"; sourceTree = "<group>"; };
 		4A8BBBEB08AB131E00C5998B /* Omni-Framework-Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Framework-Debug.xcconfig"; sourceTree = "<group>"; };
 		4A8BBBEC08AB131E00C5998B /* Omni-Framework-Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Framework-Release.xcconfig"; sourceTree = "<group>"; };
-		4A8BBBED08AB131E00C5998B /* Omni-Tool-Coverage.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Tool-Coverage.xcconfig"; sourceTree = "<group>"; };
 		4A8BBBEE08AB131E00C5998B /* Omni-Tool-Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Tool-Debug.xcconfig"; sourceTree = "<group>"; };
 		4A8BBBEF08AB131E00C5998B /* Omni-Tool-Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Tool-Release.xcconfig"; sourceTree = "<group>"; };
-		4ADFF50C08AB31B200281C2B /* Omni-Bundle-Coverage.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Bundle-Coverage.xcconfig"; sourceTree = "<group>"; };
 		4ADFF50D08AB31B200281C2B /* Omni-Bundle-Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Bundle-Debug.xcconfig"; sourceTree = "<group>"; };
 		4ADFF50E08AB31B200281C2B /* Omni-Bundle-Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Bundle-Release.xcconfig"; sourceTree = "<group>"; };
-		4ADFF50F08AB31B200281C2B /* Omni-Global-Coverage.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Global-Coverage.xcconfig"; sourceTree = "<group>"; };
 		4ADFF51008AB31B200281C2B /* Omni-Global-Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Global-Debug.xcconfig"; sourceTree = "<group>"; };
 		4ADFF51108AB31B200281C2B /* Omni-Global-Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Omni-Global-Release.xcconfig"; sourceTree = "<group>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -74,12 +86,15 @@
 				0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */,
 				034768DFFF38A50411DB9C8B /* Products */,
 			);
+			indentWidth = 8;
 			name = LiveLink;
 			sourceTree = "<group>";
+			usesTabs = 1;
 		};
 		0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				34E16FB41CEA2DCE0097828B /* FixStringsFile.xcodeproj */,
 				1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */,
 				1058C7B2FEA5585E11CA2CBB /* Other Frameworks */,
 			);
@@ -91,7 +106,6 @@
 			children = (
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
 				089C1666FE841158C02AAC07 /* InfoPlist.strings */,
-				20E80E6307F2116B0060ED13 /* Localized.strings */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -127,9 +141,18 @@
 		32C88DFF0371C24200C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				34325A31214C653200080769 /* LinkBack.xcfilelist */,
 				32DBCF5E0370ADEE00C91783 /* LinkBack_Prefix.pch */,
 			);
 			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		34E16FB51CEA2DCE0097828B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				34E16FB91CEA2DCE0097828B /* FixStringsFile */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		4A8BBBE308AB130800C5998B /* Source */ = {
@@ -145,19 +168,14 @@
 		4A8BBBE608AB131E00C5998B /* Configurations */ = {
 			isa = PBXGroup;
 			children = (
-				4A8BBBE708AB131E00C5998B /* Omni-Application-Coverage.xcconfig */,
 				4A8BBBE808AB131E00C5998B /* Omni-Application-Debug.xcconfig */,
 				4A8BBBE908AB131E00C5998B /* Omni-Application-Release.xcconfig */,
-				4ADFF50C08AB31B200281C2B /* Omni-Bundle-Coverage.xcconfig */,
 				4ADFF50D08AB31B200281C2B /* Omni-Bundle-Debug.xcconfig */,
 				4ADFF50E08AB31B200281C2B /* Omni-Bundle-Release.xcconfig */,
-				4A8BBBEA08AB131E00C5998B /* Omni-Framework-Coverage.xcconfig */,
 				4A8BBBEB08AB131E00C5998B /* Omni-Framework-Debug.xcconfig */,
 				4A8BBBEC08AB131E00C5998B /* Omni-Framework-Release.xcconfig */,
-				4ADFF50F08AB31B200281C2B /* Omni-Global-Coverage.xcconfig */,
 				4ADFF51008AB31B200281C2B /* Omni-Global-Debug.xcconfig */,
 				4ADFF51108AB31B200281C2B /* Omni-Global-Release.xcconfig */,
-				4A8BBBED08AB131E00C5998B /* Omni-Tool-Coverage.xcconfig */,
 				4A8BBBEE08AB131E00C5998B /* Omni-Tool-Debug.xcconfig */,
 				4A8BBBEF08AB131E00C5998B /* Omni-Tool-Release.xcconfig */,
 			);
@@ -186,12 +204,14 @@
 			buildPhases = (
 				8DC2EF500486A6940098B216 /* Headers */,
 				8DC2EF520486A6940098B216 /* Resources */,
+				42FB1EFE195E37EA00CE3545 /* Build Strings files */,
 				8DC2EF540486A6940098B216 /* Sources */,
 				8DC2EF560486A6940098B216 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				34E16FBB1CEA2DE50097828B /* PBXTargetDependency */,
 			);
 			name = LinkBack;
 			productInstallPath = "$(HOME)/Library/Frameworks";
@@ -205,21 +225,27 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 1000;
 			};
 			buildConfigurationList = 4A8BBBD608AB123000C5998B /* Build configuration list for PBXProject "LinkBack" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
+				en,
+				ja,
+				fr,
+				de,
 			);
 			mainGroup = 0867D691FE84028FC02AAC07 /* LiveLink */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 34E16FB51CEA2DCE0097828B /* Products */;
+					ProjectRef = 34E16FB41CEA2DCE0097828B /* FixStringsFile.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				8DC2EF4F0486A6940098B216 /* LinkBack */,
@@ -227,17 +253,48 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXReferenceProxy section */
+		34E16FB91CEA2DCE0097828B /* FixStringsFile */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = FixStringsFile;
+			remoteRef = 34E16FB81CEA2DCE0097828B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
 /* Begin PBXResourcesBuildPhase section */
 		8DC2EF520486A6940098B216 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */,
-				20E80E6507F2116B0060ED13 /* Localized.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		42FB1EFE195E37EA00CE3545 /* Build Strings files */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"$(SRCROOT)/$(TARGET_NAME).xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "Build Strings files";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/$(TARGET_NAME)-BuildStringFiles",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "../../../OmniGroup/Scripts/BuildStringsFromTarget Localized\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8DC2EF540486A6940098B216 /* Sources */ = {
@@ -251,21 +308,21 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		34E16FBB1CEA2DE50097828B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = FixStringsFile;
+			targetProxy = 34E16FBA1CEA2DE50097828B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin PBXVariantGroup section */
 		089C1666FE841158C02AAC07 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				089C1667FE841158C02AAC07 /* English */,
+				089C1667FE841158C02AAC07 /* en */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		20E80E6307F2116B0060ED13 /* Localized.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				20E80E6407F2116B0060ED13 /* English */,
-			);
-			name = Localized.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -276,6 +333,7 @@
 			baseConfigurationReference = 4A8BBBEB08AB131E00C5998B /* Omni-Framework-Debug.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = org.linkbackproject.LinkBack;
 				PRODUCT_NAME = LinkBack;
 			};
 			name = Debug;
@@ -285,18 +343,10 @@
 			baseConfigurationReference = 4A8BBBEC08AB131E00C5998B /* Omni-Framework-Release.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = org.linkbackproject.LinkBack;
 				PRODUCT_NAME = LinkBack;
 			};
 			name = Release;
-		};
-		4A8BBBD508AB123000C5998B /* Coverage */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4A8BBBEA08AB131E00C5998B /* Omni-Framework-Coverage.xcconfig */;
-			buildSettings = {
-				INFOPLIST_FILE = Info.plist;
-				PRODUCT_NAME = LinkBack;
-			};
-			name = Coverage;
 		};
 		4A8BBBD708AB123000C5998B /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -318,16 +368,6 @@
 			};
 			name = Release;
 		};
-		4A8BBBD908AB123000C5998B /* Coverage */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4ADFF50F08AB31B200281C2B /* Omni-Global-Coverage.xcconfig */;
-			buildSettings = {
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = "";
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-			};
-			name = Coverage;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -336,7 +376,6 @@
 			buildConfigurations = (
 				4A8BBBD308AB123000C5998B /* Debug */,
 				4A8BBBD408AB123000C5998B /* Release */,
-				4A8BBBD508AB123000C5998B /* Coverage */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -346,7 +385,6 @@
 			buildConfigurations = (
 				4A8BBBD708AB123000C5998B /* Debug */,
 				4A8BBBD808AB123000C5998B /* Release */,
-				4A8BBBD908AB123000C5998B /* Coverage */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

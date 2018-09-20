@@ -46,6 +46,16 @@ NSString* MakeLinkBackServerName(NSString* bundleIdentifier, NSString* name)
 NSMutableDictionary* LinkBackServers = nil ;
 
 @implementation LinkBackServer
+{
+    NSString *bundleIdentifier;
+    // <bug:///163125> (Frameworks-Mac Unassigned: Replace use of NSConnection in LinkBack with something not deprecated)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    NSConnection* listener ;
+#pragma clang diagnostic pop
+    NSString* name ;
+    id<LinkBackServerDelegate> delegate ;
+}
 
 + (void)initialize
 {
@@ -173,33 +183,28 @@ static NSString* FindLinkBackServer(NSString* bundleIdentifier, NSString* server
 
 static void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
 {
-	NSInteger result ;
-	
-	// strings for panel
 	NSBundle* b = [NSBundle bundleForClass: [LinkBack class]] ;
-	NSString* title ;
-	NSString* msg ;
-	NSString* ok ;
-	NSString* urlstr ;
 	
-	title = NSLocalizedStringFromTableInBundle(@"_AppNotFoundTitle", @"Localized", b, @"app not found title") ;
-	ok = NSLocalizedStringFromTableInBundle(@"_OK", @"Localized", b, @"ok") ;
-
-	msg = (url) ? NSLocalizedStringFromTableInBundle(@"_AppNotFoundMessageWithURL", @"Localized", b, @"app not found msg") : NSLocalizedStringFromTableInBundle(@"_AppNotFoundMessageNoURL", @"Localized", b, @"app not found msg") ;
+	NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+	alert.messageText = [NSString stringWithFormat: NSLocalizedStringWithDefaultValue(@"_AppNotFoundTitle", @"Localized", b, @"The creator application \"%@\" could not be found.", @"app not found title"), appName];
+	alert.informativeText = (url) ? NSLocalizedStringWithDefaultValue(@"_AppNotFoundMessageWithURL", @"Localized", b, @"Make sure this application is installed in your Applications folder to use it.  If you do not have this software, you can choose \"Get Application\" to download it.", @"app not found msg") : NSLocalizedStringWithDefaultValue(@"_AppNotFoundMessageNoURL", @"Localized", b, @"Make sure this application is installed in your Applications folder to use it.", @"app not found msg");
+	[alert addButtonWithTitle:NSLocalizedStringWithDefaultValue(@"_OK", @"Localized", b, @"OK", @"ok")];
 	
-	urlstr = (url) ? NSLocalizedStringFromTableInBundle(@"_GetApplication", @"Localized", b, @"Get application") : nil ;
-
-	title = [NSString stringWithFormat: title, appName] ;
+	if (url)
+		[alert addButtonWithTitle:NSLocalizedStringWithDefaultValue(@"_GetApplication", @"Localized", b, @"Get application", @"Get application")];
 	
-	result = NSRunCriticalAlertPanel(title, msg, ok, urlstr, nil) ;
-	if (NSAlertAlternateReturn == result) {
+	NSModalResponse response = [alert runModal];
+	if (response == NSAlertSecondButtonReturn && url) {
 		[[NSWorkspace sharedWorkspace] openURL: url] ;
 	}
 }
 
 + (LinkBackServer*)LinkBackServerWithName:(NSString*)aName inApplication:(NSString*)bundleIdentifier launchIfNeeded:(BOOL)flag fallbackURL:(NSURL*)url appName:(NSString*)appName ;
 {
-	NSString* serverName = MakeLinkBackServerName(bundleIdentifier, aName) ;
+    // <bug:///163125> (Frameworks-Mac Unassigned: Replace use of NSConnection in LinkBack with something not deprecated)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    NSString* serverName = MakeLinkBackServerName(bundleIdentifier, aName) ;
     id ret = nil ;
 
 	// Is this our own server?
@@ -259,6 +264,7 @@ static void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
 	// setup protocol and return
     if (ret) [ret setProtocolForProxy: @protocol(LinkBackServer)] ;
     return ret ;
+#pragma clang diagnostic pop
 }
 
 - (id)initWithName:(NSString*)aName bundleIdentifier:(NSString *)anIdentifier delegate:(id<LinkBackServerDelegate>)aDel
@@ -285,22 +291,28 @@ static void LinkBackRunAppNotFoundPanel(NSString* appName, NSURL* url)
 
 - (BOOL)publish
 {
+    // <bug:///163125> (Frameworks-Mac Unassigned: Replace use of NSConnection in LinkBack with something not deprecated)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSString* serverName = MakeLinkBackServerName(bundleIdentifier, name) ;
     BOOL ret = YES ;
     
     // create listener and connect
     NSPort* port = [NSPort port] ;
-    listener = [NSConnection connectionWithReceivePort: port sendPort:port] ;
+    listener = [[NSConnection alloc] initWithReceivePort: port sendPort:port] ;
     [listener setRootObject: self] ;
     ret = [listener registerName: serverName] ;
     
-    // if successful, retain connection and add self to list of servers.
-    if (ret) {
-        [listener retain] ;
-    } else listener = nil ; // listener will dealloc on its own.
+    // if unsuccessful, release the listener
+    if (!ret) {
+        [listener invalidate] ;
+        [listener release] ;
+	    listener = nil ;
+    }
     
     [LinkBackServers setObject: self forKey: serverName] ; // Always keep track of our published servers
     return ret ;
+#pragma clang diagnostic pop
 }
 
 - (void)retract 

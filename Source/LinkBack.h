@@ -39,11 +39,11 @@
 @class NSPasteboard;
 
 // Use this pasteboard type to put LinkBack data to the pasteboard.  Use MakeLinkBackData() to create the data.
-extern NSString* LinkBackPboardType ;
+extern NSString * const LinkBackPboardType ;
 
 // Default Action Names.  These will be localized for you automatically.
-extern NSString* LinkBackEditActionName ;
-extern NSString* LinkBackRefreshActionName ;
+extern NSString * const LinkBackEditActionName ;
+extern NSString * const LinkBackRefreshActionName ;
 
 //
 // Support Functions
@@ -109,6 +109,9 @@ BOOL LinkBackDataBelongsToActiveApplication(id data) ;
 - (void)requestEditWithPasteboardName:(bycopy NSString*)pboardName ; // from client
 - (void)refreshEditWithPasteboardName:(bycopy NSString*)pboardName ; // from server
 @end
+
+
+static NSString* LinkBackServerBundleIdentifierKey = @"bundleId" ;
 
 @interface LinkBack : NSObject <LinkBack> {
     LinkBack* peer ; // the client or server on the other side.

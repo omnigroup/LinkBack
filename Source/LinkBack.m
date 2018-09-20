@@ -36,20 +36,19 @@
 #import "LinkBack.h"
 #import "LinkBackServer.h"
 
-NSString* LinkBackPboardType = @"LinkBackData" ;
+NSString * const LinkBackPboardType = @"LinkBackData" ;
 
 // LinkBack data keys.  These are used in a LinkBack object, which is currently a dictionary.  Do not depend on these values.  They are public for testing purposes only.
-NSString* LinkBackServerActionKey = @"serverActionKey" ;
-NSString* LinkBackServerApplicationNameKey = @"serverAppName" ;
-NSString* LinkBackServerNameKey = @"serverName" ;
-NSString* LinkBackServerBundleIdentifierKey = @"bundleId" ;
-NSString* LinkBackVersionKey = @"version" ;
-NSString* LinkBackApplicationDataKey = @"appData" ;
-NSString* LinkBackSuggestedRefreshKey = @"refresh" ;
-NSString* LinkBackApplicationURLKey = @"ApplicationURL" ;
+static NSString * const LinkBackServerActionKey = @"serverActionKey" ;
+static NSString * const LinkBackServerApplicationNameKey = @"serverAppName" ;
+static NSString * const LinkBackServerNameKey = @"serverName" ;
+static NSString * const LinkBackVersionKey = @"version" ;
+static NSString * const LinkBackApplicationDataKey = @"appData" ;
+static NSString * const LinkBackSuggestedRefreshKey = @"refresh" ;
+static NSString * const LinkBackApplicationURLKey = @"ApplicationURL" ;
 
-NSString* LinkBackEditActionName = @"_Edit" ;
-NSString* LinkBackRefreshActionName = @"_Refresh" ;
+NSString * const LinkBackEditActionName = @"_Edit" ; // // NSLocalizedStringWithDefaultValue(@"_Edit", @"Localized", bundle, @"Edit", @"Edit");
+NSString * const LinkBackRefreshActionName = @"_Refresh" ; // NSLocalizedStringWithDefaultValue(@"_Refresh", @"Localized", bundle, @"Refresh", @"Refresh");
 
 // ...........................................................................
 // Support Functions
@@ -70,7 +69,7 @@ NSString* LinkBackUniqueItemKey(void)
     static int counter = 0 ;
     
     NSString* base = [[NSBundle mainBundle] bundleIdentifier] ;
-    uint64_t secondsSinceReferenceDate = [NSDate timeIntervalSinceReferenceDate];
+    uint64_t secondsSinceReferenceDate = (uint64_t)[NSDate timeIntervalSinceReferenceDate];
     return [NSString stringWithFormat: @"%@%qu.%.4x", base, secondsSinceReferenceDate, counter++] ;
 }
 
@@ -82,15 +81,15 @@ BOOL LinkBackDataBelongsToActiveApplication(id data)
 NSString* LinkBackEditMultipleMenuTitle(void) 
 {
 	NSBundle* bundle = [NSBundle bundleForClass: [LinkBack class]] ;
-	NSString* ret = [bundle localizedStringForKey: @"_EditMultiple" value: @"Edit LinkBack Items" table: @"Localized"] ;
+        NSString* ret = NSLocalizedStringWithDefaultValue(@"_EditMultiple", @"Localized", bundle, @"Edit LinkBack Items", @"Edit LinkBack Items");
 	return ret ;
 }
 
 NSString* LinkBackEditNoneMenuTitle(void) 
 {
 	NSBundle* bundle = [NSBundle bundleForClass: [LinkBack class]] ;
-	NSString* ret = [bundle localizedStringForKey: @"_EditNone" value: @"Edit LinkBack Item" table: @"Localized"] ;
-	return ret ;
+        NSString* ret = NSLocalizedStringWithDefaultValue(@"_EditNone", @"Localized", bundle, @"Edit LinkBack Item", @"Edit LinkBack Item");
+        return ret ;
 }
 
 // ...........................................................................
@@ -170,7 +169,7 @@ NSString* LinkBackEditNoneMenuTitle(void)
 	NSBundle* bundle = [NSBundle bundleForClass: [LinkBack class]] ;
 	NSString* appName = [self linkBackSourceApplicationName] ;
 	NSString* action = [self linkBackActionName] ;
-	NSString* ret = [bundle localizedStringForKey: @"_EditPattern" value: @"%@ in %@" table: @"Localized"] ;
+        NSString* ret = NSLocalizedStringWithDefaultValue(@"_EditPattern", @"Localized", bundle, @"%@ in %@", @"Edit Pattern");
 	ret = [NSString stringWithFormat: ret, action, appName] ;
 	return ret ;
 }
@@ -233,8 +232,13 @@ NSMutableDictionary* keyedLinkBacks = nil ;
     isServer = YES ;
     delegate = aDel ;
     [keyedLinkBacks setObject: self forKey: key] ;
+
+    // <bug:///163125> (Frameworks-Mac Unassigned: Replace use of NSConnection in LinkBack with something not deprecated)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     if ([peer isKindOfClass:[NSDistantObject class]])
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(connectionDidDie:) name:NSConnectionDidDieNotification object:[(NSDistantObject *)peer connectionForProxy]];
+#pragma clang diagnostic pop
 
     return self ;
 }
@@ -256,8 +260,12 @@ NSMutableDictionary* keyedLinkBacks = nil ;
 
 - (void)dealloc
 {
+    // <bug:///163125> (Frameworks-Mac Unassigned: Replace use of NSConnection in LinkBack with something not deprecated)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSConnectionDidDieNotification object:nil];
-    
+#pragma clang diagnostic pop
+
     [repobj release] ;
     [sourceName release] ;
     
